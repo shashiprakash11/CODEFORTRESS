@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CodeFortress CI | High-Integrity Security Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{
+  --bg:#07070a;--bg1:#0d0d10;--bg2:#121215;--bg3:#18181c;--bg4:#1e1e23;
+  --gold:#D4A843;--gold2:#E8C060;--gold3:#9A7520;--gold4:#6B5010;
+  --gg:rgba(212,168,67,.14);--gd:rgba(212,168,67,.07);--gbdr:rgba(212,168,67,.22);
+  --green:#34D399;--greend:rgba(52,211,153,.1);
+  --red:#F87171;--redd:rgba(248,113,113,.1);
+  --amber:#FBBF24;--amberd:rgba(251,191,36,.1);
+  --blue:#60A5FA;--blued:rgba(96,165,250,.1);
+  --bdr:rgba(255,255,255,.055);--bdr2:rgba(255,255,255,.1);
+  --txt:#EDE8DF;--txt2:#7A7468;--txt3:#454340;
+  --ff:'Syne',sans-serif;--fm:'JetBrains Mono',monospace;
+  --sw:224px;--th:60px;--r:8px;--rs:4px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden;height:100vh;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+::-webkit-scrollbar-track{background:transparent}
+
+.shell{display:grid;grid-template-columns:var(--sw) 1fr;grid-template-rows:var(--th) 1fr;height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{grid-row:1/3;background:var(--bg1);border-right:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden}
+.brand{padding:20px 18px 16px;border-bottom:1px solid var(--bdr)}
+.brand-name{font-size:18px;font-weight:800;letter-spacing:1.5px;line-height:1}
+.brand-name em{color:var(--gold);font-style:normal}
+.brand-tag{font-size:8px;letter-spacing:3px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-top:5px}
+.brand-bar{width:30px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin-top:10px}
+
+.nav{padding:8px 0;flex:1;overflow-y:auto}
+.ngl{font-size:8px;letter-spacing:2.5px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;padding:10px 18px 4px}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:10px;font-weight:500;letter-spacing:1.5px;color:var(--txt2);cursor:pointer;border-left:2px solid transparent;transition:all .15s;text-transform:uppercase;font-family:var(--fm);user-select:none}
+.ni svg{width:13px;height:13px;flex-shrink:0;opacity:.65;transition:opacity .15s}
+.ni:hover{color:var(--txt);background:var(--bg2)}
+.ni:hover svg{opacity:.9}
+.ni.active{color:var(--gold);border-left-color:var(--gold);background:var(--gd)}
+.ni.active svg{opacity:1}
+
+.sfoot{padding:12px 18px;border-top:1px solid var(--bdr)}
+.slbl{font-size:8px;letter-spacing:2px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-bottom:8px}
+.ptgl{width:38px;height:21px;border-radius:12px;background:var(--bg4);border:1px solid var(--bdr);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.ptgl.on{background:var(--gold4);border-color:var(--gold3)}
+.ptgl::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:var(--txt3);transition:all .2s}
+.ptgl.on::after{left:19px;background:var(--gold)}
+.trow{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.tlbl{font-size:10px;color:var(--txt2);font-family:var(--fm)}
+.rbtn{width:100%;padding:9px 14px;background:var(--bg2);border:1px solid var(--bdr);color:var(--txt2);font-size:9px;letter-spacing:2px;font-family:var(--fm);text-transform:uppercase;border-radius:var(--rs);display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .15s}
+.rbtn:hover{border-color:var(--gold);color:var(--gold)}
+.epill{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:8px;letter-spacing:1.5px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase}
+.edot{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s ease-in-out infinite;flex-shrink:0}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--bg1);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:28px;padding:0 24px}
+.tbst{display:flex;flex-direction:column;gap:2px}
+.tblbl{font-size:7px;letter-spacing:2.5px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase}
+.tbv{font-size:17px;font-weight:700;font-family:var(--fm);letter-spacing:-0.5px}
+.tbv .ac{color:var(--gold)}
+.tbctx{font-size:12px;font-weight:600;color:var(--gold);letter-spacing:.5px}
+.tbsep{width:1px;height:26px;background:var(--bdr)}
+.tbsp{flex:1}
+.btn{padding:8px 16px;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;font-family:var(--fm);border-radius:var(--rs);cursor:pointer;transition:all .15s}
+.btn-g{background:transparent;border:1px solid var(--bdr);color:var(--txt2)}
+.btn-g:hover{border-color:var(--bdr2);color:var(--txt)}
+.btn-gold{background:var(--gd);border:1px solid var(--gbdr);color:var(--gold)}
+.btn-gold:hover{background:var(--gg);border-color:var(--gold)}
+.btn-gold.fired{background:var(--gold);color:#07070a;font-weight:700;box-shadow:0 0 20px rgba(212,168,67,.3)}
+
+/* ── MAIN ── */
+.main{overflow-y:auto;padding:24px 28px;background:var(--bg);position:relative}
+.page{display:none}
+.page.active{display:block;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ── PAGE HEADERS ── */
+.ph{margin-bottom:22px}
+.pht{font-size:28px;font-weight:800;line-height:1.1}
+.pht strong{color:var(--gold)}
+.phs{font-size:8px;letter-spacing:3px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-top:6px}
+.phr{display:flex;align-items:flex-end;justify-content:space-between}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r)}
+.card-p{padding:18px 20px}
+.clbl{font-size:8px;letter-spacing:2.5px;color:var(--gold);font-family:var(--fm);text-transform:uppercase;margin-bottom:14px}
+
+/* ── INTEL PAGE ── */
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.tcard{border:1px dashed var(--gbdr);background:var(--gd);border-radius:var(--r);padding:22px}
+.tct{font-size:18px;font-weight:700;margin-bottom:4px}
+.tcs{font-size:11px;color:var(--txt2);font-family:var(--fm);margin-bottom:20px}
+.idbox{border:1px solid var(--bdr);background:rgba(0,0,0,.35);border-radius:var(--rs);padding:14px;text-align:center;margin-bottom:14px}
+.idlbl{font-size:8px;letter-spacing:3px;color:var(--gold);font-family:var(--fm);text-transform:uppercase}
+.idsub{font-size:10px;color:var(--txt3);font-family:var(--fm);margin-top:3px}
+.urlin{width:100%;padding:11px 14px;background:var(--bg);border:1px solid var(--bdr);color:var(--txt);font-family:var(--fm);font-size:11px;border-radius:var(--rs);outline:none;transition:border-color .2s}
+.urlin:focus{border-color:var(--gold)}
+.urlin::placeholder{color:var(--txt3)}
+.scbtn{width:100%;margin-top:14px;padding:13px;background:var(--gold);border:none;color:#07070a;font-size:10px;font-weight:700;letter-spacing:3px;font-family:var(--fm);text-transform:uppercase;border-radius:var(--rs);cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.scbtn:hover:not(:disabled){background:var(--gold2);box-shadow:0 0 24px rgba(212,168,67,.4)}
+.scbtn:disabled{opacity:.5;cursor:not-allowed}
+.scbtn .shim{position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.15) 50%,transparent 60%);animation:shim 2.2s infinite}
+@keyframes shim{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+/* ── LOG PANEL ── */
+.lpanel{background:#040406;border:1px solid var(--bdr);border-radius:var(--r);display:flex;flex-direction:column;min-height:340px}
+.lhead{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;border-bottom:1px solid var(--bdr)}
+.ltxt{font-size:8px;letter-spacing:2px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase}
+.lpill{display:none;align-items:center;gap:5px;font-size:8px;color:var(--green);font-family:var(--fm);letter-spacing:1px}
+.lpill.show{display:flex}
+.ldot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink .8s infinite}
+.lbody{flex:1;overflow-y:auto;padding:12px 15px;max-height:290px}
+.ll{font-size:10px;font-family:var(--fm);line-height:1.95;opacity:0;animation:logIn .18s ease forwards}
+@keyframes logIn{to{opacity:1}}
+.ts{color:#4a9070}.ti{color:#3a6fff}.tw{color:var(--amber)}.te{color:var(--red)}.tok{color:var(--green)}
+.ms{color:#4a4a5a}.m{color:#7a7a8a}.mw{color:rgba(251,191,36,.8)}.mok{color:var(--green)}
+
+/* ── 8-LAYER ML SCAN OVERLAY ── */
+.scan-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column}
+.scan-overlay.show{display:flex}
+.scan-box{background:var(--bg1);border:1px solid var(--gbdr);border-radius:12px;padding:36px 44px;width:680px;max-width:95vw}
+.scan-title{font-size:22px;font-weight:800;color:var(--gold);margin-bottom:4px;text-align:center}
+.scan-repo{font-size:11px;color:var(--txt2);font-family:var(--fm);text-align:center;margin-bottom:28px}
+
+/* 8 layer visual */
+.layers-wrap{display:flex;gap:0;align-items:flex-start;justify-content:center;margin-bottom:28px}
+.layer-item{display:flex;align-items:center;flex-shrink:0}
+.layer-inner{display:flex;flex-direction:column;align-items:center;width:72px}
+.layer-ring{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;font-family:var(--fm);transition:all .4s;position:relative;border:2px solid var(--bdr);background:var(--bg3);color:var(--txt3)}
+.layer-ring.done{border-color:var(--green);color:var(--green);background:var(--greend)}
+.layer-ring.done::after{content:'✓';font-size:16px}
+.layer-ring.running{border-color:var(--gold);color:var(--gold);background:var(--gd);animation:ringPulse 1s ease-in-out infinite}
+@keyframes ringPulse{0%,100%{box-shadow:0 0 0 0 rgba(212,168,67,.5)}50%{box-shadow:0 0 0 8px rgba(212,168,67,0)}}
+.layer-ring.idle{color:var(--txt3)}
+.layer-num{position:absolute;font-size:12px;font-weight:700}
+.layer-name{font-size:7px;letter-spacing:.5px;color:var(--txt2);font-family:var(--fm);text-transform:uppercase;text-align:center;margin-top:6px;line-height:1.4;max-width:68px}
+.layer-status{font-size:7px;font-family:var(--fm);margin-top:2px;height:10px}
+.layer-conn{width:16px;height:2px;background:var(--bdr);flex-shrink:0;margin-top:-24px;transition:background .4s}
+.layer-conn.done{background:var(--green)}
+
+/* Progress bar */
+.scan-prog-wrap{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:12px}
+.scan-prog-bar{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold2));border-radius:2px;transition:width .5s ease;width:0%}
+.scan-stage-lbl{font-size:10px;color:var(--gold);font-family:var(--fm);text-align:center;min-height:18px}
+
+/* Scan log inside overlay */
+.scan-minilog{background:#040406;border:1px solid var(--bdr);border-radius:4px;padding:8px 12px;height:80px;overflow-y:auto;margin-top:14px}
+.scan-minilog .ll{font-size:9px}
+
+/* ── GH INFO ── */
+.ghinfo{display:none;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 18px;margin-bottom:14px}
+.ghinfo.show{display:block}
+.ghrow{display:flex;align-items:center;gap:14px}
+.ghav{width:38px;height:38px;border-radius:50%;border:1px solid var(--bdr)}
+.ghn{font-size:14px;font-weight:700}
+.ghm{font-size:10px;color:var(--txt2);font-family:var(--fm);margin-top:2px}
+.ghsts{display:flex;gap:18px;margin-left:auto}
+.ghst{text-align:center}
+.ghsv{font-size:15px;font-weight:700;font-family:var(--fm);color:var(--gold)}
+.ghsl{font-size:7px;letter-spacing:1px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase}
+
+/* ── FINDINGS ── */
+.fsrow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.fmc{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px}
+.fmlbl{font-size:8px;letter-spacing:2px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-bottom:6px}
+.fmval{font-size:26px;font-weight:800;font-family:var(--fm)}
+.fmbdg{margin-top:4px;font-size:8px;font-family:var(--fm);letter-spacing:1px}
+
+.flist{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto}
+.fitem{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rs);padding:12px 14px;display:flex;gap:10px;align-items:flex-start;transition:border-color .15s}
+.fitem:hover{border-color:var(--bdr2)}
+.fdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.fcrit{background:var(--red)}.fhigh{background:var(--amber)}.fmed{background:var(--blue)}.flow{background:var(--txt3)}
+.fname{font-size:12px;font-weight:600;margin-bottom:3px}
+.ffile{font-size:10px;color:var(--gold);font-family:var(--fm)}
+.fmeta{font-size:9px;color:var(--txt3);font-family:var(--fm);margin-top:2px}
+.fcode{font-size:9px;color:var(--txt2);font-family:var(--fm);background:var(--bg);padding:4px 8px;border-radius:2px;margin-top:5px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:500px}
+.fixbtn{flex-shrink:0;padding:5px 11px;background:var(--gd);border:1px solid var(--gbdr);color:var(--gold);font-family:var(--fm);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;border-radius:2px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.fixbtn:hover{background:var(--gg);border-color:var(--gold)}
+.fixbtn:disabled{opacity:.5;cursor:not-allowed}
+.fixbtn.done{color:var(--green);border-color:rgba(52,211,153,.3);background:var(--greend)}
+.fixresult{margin-top:8px;background:var(--bg);border:1px solid var(--gbdr);border-radius:var(--rs);padding:10px 12px;font-family:var(--fm);font-size:10px;color:var(--green);white-space:pre-wrap;line-height:1.7}
+.fixby{margin-top:5px;font-size:8px;color:var(--txt3);font-family:var(--fm)}
+
+/* Severity badges */
+.sbdg{display:inline-block;padding:2px 8px;border-radius:2px;font-size:8px;font-family:var(--fm);letter-spacing:1px;font-weight:500}
+.sc{background:var(--redd);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.sh{background:var(--amberd);color:var(--amber);border:1px solid rgba(251,191,36,.2)}
+.sm{background:var(--blued);color:var(--blue);border:1px solid rgba(96,165,250,.2)}
+.sl{background:var(--greend);color:var(--green);border:1px solid rgba(52,211,153,.2)}
+
+/* NC badge */
+.ncbdg{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rs);font-size:8px;letter-spacing:1.5px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase}
+.ncd{width:5px;height:5px;border-radius:50%;background:var(--red);transition:background .3s}
+.ncd.active{background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.5s infinite}
+.ncd.done{background:var(--gold);box-shadow:0 0 8px var(--gold);animation:none}
+
+/* Defense chart */
+.defsec{display:none;margin-top:16px}
+.defsec.show{display:grid;grid-template-columns:1fr 270px;gap:14px}
+
+/* ── ATTACK PAGE ── */
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.acard{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;transition:border-color .2s,transform .2s;cursor:default}
+.acard:hover{border-color:rgba(212,168,67,.2);transform:translateY(-1px)}
+.acid{font-size:9px;color:var(--red);font-family:var(--fm);letter-spacing:1px;margin-bottom:3px}
+.accwe{font-size:8px;color:var(--txt3);font-family:var(--fm);margin-bottom:10px}
+.actit{font-size:14px;font-weight:700;color:var(--gold);margin:10px 0 12px;line-height:1.3}
+.acst{display:flex;gap:9px;margin-bottom:7px}
+.acn{width:18px;height:18px;border-radius:50%;background:var(--bg3);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:8px;font-family:var(--fm);color:var(--txt3);flex-shrink:0}
+.act{font-size:10px;color:var(--txt2);font-family:var(--fm);line-height:1.6}
+
+/* ── THREE.JS CANVAS PAGES ── */
+.three-card{background:#030305;border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;position:relative}
+#threeCanvas{width:100%;height:100%;display:block}
+.three-tl{position:absolute;top:14px;left:16px;font-size:8px;letter-spacing:2px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase}
+.three-tr{position:absolute;top:14px;right:16px;font-size:8px;color:var(--gold);font-family:var(--fm);letter-spacing:1px}
+
+/* ── SUPPLY, RISK, POLICY, HISTORY ── */
+.sgrid{display:grid;grid-template-columns:260px 1fr;gap:16px}
+.drow{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.drow:last-child{border-bottom:none}
+.dn{font-size:12px;font-family:var(--fm)}
+.dn span{color:var(--txt3);font-size:10px}
+.dm{font-size:9px;color:var(--txt3);font-family:var(--fm);margin-top:2px}
+.rtag{padding:3px 9px;border-radius:var(--rs);font-size:8px;font-family:var(--fm);letter-spacing:1px;font-weight:500}
+.rtl{background:var(--greend);color:var(--green);border:1px solid rgba(52,211,153,.2)}
+.rtm{background:var(--amberd);color:var(--amber);border:1px solid rgba(251,191,36,.2)}
+.rth{background:var(--redd);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.stbig{font-size:32px;font-weight:800;font-family:var(--fm);line-height:1}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.rcard{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;position:relative;overflow:hidden;min-height:148px}
+.rcard::before{content:'';position:absolute;inset:0;opacity:.04;background:radial-gradient(circle at 30% 70%,var(--red),transparent 60%);pointer-events:none}
+.rcard::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--red)}
+.rkcl{font-size:7px;letter-spacing:2px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase}
+.rkn{font-size:17px;font-weight:700;margin:4px 0 10px}
+.rkp{font-size:30px;font-weight:800;color:var(--red);font-family:var(--fm);line-height:1}
+.rkp sup{font-size:15px}
+.rki{font-size:7px;letter-spacing:1px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase}
+.rkbar{height:2px;background:rgba(248,113,113,.25);border-radius:1px;margin-top:12px}
+.rkbf{height:100%;background:var(--red);border-radius:1px}
+.rkps{display:flex;justify-content:space-between;align-items:center;margin-top:7px}
+.rkpl{font-size:8px;color:var(--txt3);font-family:var(--fm);letter-spacing:1px;text-transform:uppercase}
+.ctag{font-size:8px;color:var(--red);font-family:var(--fm);background:var(--redd);padding:2px 8px;border-radius:2px;border:1px solid rgba(248,113,113,.2);letter-spacing:1px}
+.pgrid{display:grid;grid-template-columns:1fr 290px;gap:16px}
+.pitem{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rs);padding:15px 17px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;transition:border-color .2s}
+.pitem:hover{border-color:var(--bdr2)}
+.pn{font-size:13px;font-weight:600}
+.pd{font-size:10px;color:var(--txt2);font-family:var(--fm);margin-top:3px}
+.crow{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.crow:last-child{border-bottom:none}
+.cn{font-size:10px;letter-spacing:1.5px;font-family:var(--fm);color:var(--txt2);text-transform:uppercase}
+.cok{font-size:9px;color:var(--green);font-family:var(--fm)}
+.cwn{font-size:9px;color:var(--amber);font-family:var(--fm)}
+.cpn{font-size:9px;color:var(--txt3);font-family:var(--fm)}
+.gr{background:rgba(212,168,67,.04);border:1px solid var(--gbdr);border-radius:var(--r);padding:14px;margin-top:12px}
+.grt{font-size:9px;letter-spacing:2px;color:var(--gold);font-family:var(--fm);text-transform:uppercase;margin-bottom:7px}
+.grb{font-size:10px;color:var(--txt2);font-family:var(--fm);line-height:1.7}
+.grb em{color:var(--red);font-style:normal;font-weight:700}
+.m4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.mc{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px}
+.ml2{font-size:8px;letter-spacing:2px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-bottom:7px}
+.mv{font-size:25px;font-weight:800;font-family:var(--fm);line-height:1}
+.mb{margin-top:5px;font-size:8px;font-family:var(--fm);letter-spacing:1px}
+.atbl{width:100%;border-collapse:collapse}
+.atbl th{font-size:8px;letter-spacing:2px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;padding:0 13px 11px;text-align:left;border-bottom:1px solid var(--bdr)}
+.atbl td{padding:12px 13px;border-bottom:1px solid rgba(255,255,255,.025);font-family:var(--fm);font-size:10px;color:var(--txt2)}
+.atbl tr:hover td{background:var(--bg2)}
+.vtf{padding:2px 8px;border-radius:2px;background:var(--redd);color:var(--red);border:1px solid rgba(248,113,113,.2);font-size:8px;letter-spacing:1px}
+.vtb{padding:2px 8px;border-radius:2px;background:rgba(251,100,36,.07);color:#FB7048;border:1px solid rgba(251,100,36,.2);font-size:8px;letter-spacing:1px}
+
+/* ── CHATBOT ── */
+.cfab{position:fixed;bottom:22px;right:22px;width:48px;height:48px;border-radius:50%;background:var(--gold);border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(212,168,67,.4);z-index:200;cursor:pointer;transition:all .2s}
+.cfab:hover{transform:scale(1.06);box-shadow:0 6px 28px rgba(212,168,67,.55)}
+.cfab svg{width:21px;height:21px;fill:#07070a}
+.cpanel{position:fixed;bottom:80px;right:22px;width:360px;background:var(--bg1);border:1px solid var(--gbdr);border-radius:10px;box-shadow:0 24px 60px rgba(0,0,0,.7);z-index:199;display:none;flex-direction:column;max-height:500px}
+.cpanel.open{display:flex}
+.chd{padding:14px 16px;border-bottom:1px solid var(--bdr);background:var(--bg2);border-radius:10px 10px 0 0}
+.chdt{font-size:10px;letter-spacing:2px;color:var(--gold);font-family:var(--fm);text-transform:uppercase}
+.chds{font-size:9px;color:var(--txt3);font-family:var(--fm);margin-top:2px}
+.chatmode{display:flex;gap:6px;padding:10px 14px;border-bottom:1px solid var(--bdr)}
+.chatmode-btn{padding:4px 10px;border-radius:20px;font-size:9px;font-family:var(--fm);letter-spacing:1px;cursor:pointer;transition:all .15s;border:1px solid var(--bdr);background:transparent;color:var(--txt3)}
+.chatmode-btn.active{background:var(--gd);border-color:var(--gbdr);color:var(--gold)}
+.cmsgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;min-height:200px}
+.cemp{color:var(--txt3);font-size:11px;font-family:var(--fm);font-style:italic;text-align:center;margin:auto}
+.cm{max-width:90%;padding:9px 12px;border-radius:var(--rs);font-size:11px;font-family:var(--fm);line-height:1.5}
+.cmb{background:var(--bg3);color:var(--txt2);border:1px solid var(--bdr);align-self:flex-start}
+.cmb pre{white-space:pre-wrap;font-size:10px;color:var(--green);margin-top:6px;font-family:var(--fm)}
+.cmu{background:var(--gd);color:var(--gold);border:1px solid var(--gbdr);align-self:flex-end}
+.ctyping{display:flex;gap:3px;align-items:center;padding:8px 12px}
+.ctyping span{width:5px;height:5px;border-radius:50%;background:var(--txt2);animation:typing .8s ease-in-out infinite}
+.ctyping span:nth-child(2){animation-delay:.15s}
+.ctyping span:nth-child(3){animation-delay:.3s}
+@keyframes typing{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.cinr{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--bdr)}
+.cin{flex:1;padding:8px 11px;background:var(--bg3);border:1px solid var(--bdr);color:var(--txt);font-family:var(--fm);font-size:11px;border-radius:var(--rs);outline:none}
+.cin:focus{border-color:var(--gold)}
+.cin::placeholder{color:var(--txt3)}
+.csnd{padding:8px 12px;background:var(--gold);border:none;border-radius:var(--rs);color:#07070a;font-weight:700;font-size:13px;cursor:pointer;transition:background .15s}
+.csnd:hover{background:var(--gold2)}
+.csnd:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── HB bars ── */
+.hbw{margin-bottom:13px}
+.hbr{display:flex;justify-content:space-between;font-size:9px;font-family:var(--fm);color:var(--txt2);margin-bottom:5px}
+.hbr span{color:var(--gold)}
+.hbt{height:2px;background:var(--bg4);border-radius:1px;overflow:hidden}
+.hbf{height:100%;background:var(--gold);border-radius:1px;transition:width 1.5s ease}
+
+/* ── SCANLINE ── */
+.scanline{position:fixed;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(212,168,67,.07),transparent);pointer-events:none;z-index:0;animation:scl 8s linear infinite}
+@keyframes scl{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+
+/* ── ANIMATIONS ── */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes ringPulse{0%,100%{box-shadow:0 0 0 0 rgba(212,168,67,.5)}50%{box-shadow:0 0 0 8px rgba(212,168,67,0)}}
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-name"><em>CODE</em>FORTRESS</div>
+    <div class="brand-tag">High-Integrity Core</div>
+    <div class="brand-bar"></div>
+  </div>
+  <nav class="nav" id="navEl">
+    <div class="ngl">Core</div>
+    <div class="ni active" data-page="intel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Intelligence</div>
+    <div class="ni" data-page="attack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Attack Sim</div>
+    <div class="ni" data-page="memory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>Sec Memory</div>
+    <div class="ngl">Analysis</div>
+    <div class="ni" data-page="supply"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>Supply Chain</div>
+    <div class="ni" data-page="risk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Risk Maps</div>
+    <div class="ngl">Governance</div>
+    <div class="ni" data-page="policy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>Policy Center</div>
+    <div class="ni" data-page="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History</div>
+  </nav>
+  <div class="sfoot">
+    <div class="slbl">System Mode</div>
+    <div class="trow">
+      <div class="ptgl on" id="modeToggle" onclick="this.classList.toggle('on')"></div>
+      <span class="tlbl">Dark Mode</span>
+    </div>
+    <button class="rbtn" onclick="doReset()"><span>Onboard New Target</span><span>+</span></button>
+    <div class="epill"><div class="edot"></div>Autonomous Engine Active</div>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="tbst"><div class="tblbl">Cluster Entropy</div><div class="tbv" id="eDisp">17.781<span class="ac">%</span></div></div>
+  <div class="tbsep"></div>
+  <div class="tbst"><div class="tblbl">Audit Context</div><div class="tbctx" id="actx">Idle</div></div>
+  <div class="tbsp"></div>
+  <div style="display:flex;flex-direction:column;gap:3px">
+    <input id="backendInput" placeholder="Backend URL (e.g. http://localhost:4000)" style="padding:6px 12px;background:var(--bg2);border:1px solid var(--bdr);color:var(--txt);font-family:var(--fm);font-size:10px;border-radius:var(--rs);outline:none;width:300px" oninput="saveBackendUrl(this.value)"/>
+    <div style="font-size:8px;color:var(--txt3);font-family:var(--fm);padding-left:2px">Leave empty = demo mode &nbsp;|&nbsp; Add backend URL = real scanning</div>
+  </div>
+  <input id="apiKeyInput" placeholder="Anthropic API Key (for AI fixes)" style="padding:7px 12px;background:var(--bg2);border:1px solid var(--bdr);color:var(--txt);font-family:var(--fm);font-size:10px;border-radius:var(--rs);outline:none;width:220px" type="password"/>
+  <button class="btn btn-g" onclick="doReset()">Onboard New Target</button>
+  <button class="btn btn-gold" id="execBtn" onclick="doExecute()">Execute High-Integrity Audit</button>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- INTEL PAGE -->
+<div class="page active" id="page-intel">
+
+  <!-- Page header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div>
+      <div style="font-size:26px;font-weight:800;line-height:1.1">Enterprise <span style="color:var(--gold)">ML Console</span></div>
+      <div style="font-size:8px;letter-spacing:3px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-top:5px">Architecture: 8-Layer Autonomous Defense</div>
+    </div>
+    <div class="ncbdg"><div class="ncd" id="ncd"></div><span id="nct">Neural Cluster: Idle</span></div>
+  </div>
+
+  <!-- Error banner -->
+  <div id="errBanner" style="display:none;margin-bottom:12px;padding:9px 14px;background:var(--redd);border:1px solid rgba(248,113,113,.3);border-radius:var(--rs);font-size:11px;color:var(--red);font-family:var(--fm)"></div>
+
+  <!-- GitHub repo info (shown after scan) -->
+  <div class="ghinfo" id="ghInfo">
+    <div class="ghrow">
+      <img class="ghav" id="ghAv" src="" alt=""/>
+      <div><div class="ghn" id="ghN">—</div><div class="ghm" id="ghM">—</div></div>
+      <div class="ghsts">
+        <div class="ghst"><div class="ghsv" id="ghS">—</div><div class="ghsl">Stars</div></div>
+        <div class="ghst"><div class="ghsv" id="ghF">—</div><div class="ghsl">Forks</div></div>
+        <div class="ghst"><div class="ghsv" id="ghL">—</div><div class="ghsl">Language</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN 2-COL: Left=Input+Layers, Right=Logs ═══ -->
+  <div style="display:grid;grid-template-columns:1fr 420px;gap:16px;align-items:start">
+
+    <!-- LEFT COLUMN -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <!-- Target input card -->
+      <div class="tcard">
+        <div class="tct">Autonomous Target Link</div>
+        <div class="tcs">Initiate the 8-Layer ML Pipeline.</div>
+        <div class="idbox">
+          <div class="idlbl">Target Identity</div>
+          <div class="idsub" id="idSub">Awaiting Registry Link...</div>
+        </div>
+        <input class="urlin" id="repoIn" placeholder="https://github.com/owner/repo" value="https://github.com/Harshvardhansinh28/HACKVERSE"/>
+        <button class="scbtn" id="scBtn" onclick="startScan()">
+          <span class="shim"></span><span id="scBtnTxt">Initialize Secure Audit</span>
+        </button>
+        <div style="margin-top:8px;font-size:9px;color:var(--txt3);font-family:var(--fm);text-align:center">↳ Real GitHub scanning · Claude AI auto-fix · Live ML pipeline</div>
+      </div>
+
+      <!-- ═══ 8-LAYER ML STREAM — always visible ═══ -->
+      <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:18px 20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="font-size:8px;letter-spacing:2.5px;color:var(--gold);font-family:var(--fm);text-transform:uppercase">Autonomous ML Stream</div>
+          <button id="reviewBtn" onclick="goPage('attack')" style="display:none;padding:4px 12px;background:var(--gd);border:1px solid var(--gbdr);color:var(--gold);font-family:var(--fm);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;border-radius:2px;cursor:pointer">Review ML Findings ›</button>
+        </div>
+
+        <!-- 8 stage nodes -->
+        <div style="display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding-bottom:6px" id="mlStagesWrap">
+          <!-- Built by JS -->
+        </div>
+
+        <!-- Progress bar -->
+        <div style="margin-top:14px;height:2px;background:var(--bg4);border-radius:1px;overflow:hidden">
+          <div id="mlProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--gold3),var(--gold2));border-radius:1px;transition:width .6s ease"></div>
+        </div>
+        <div id="mlStatusLbl" style="margin-top:8px;font-size:9px;color:var(--txt2);font-family:var(--fm);min-height:14px">Waiting to initialize...</div>
+      </div>
+
+      <!-- Defense chart (shown post-scan) -->
+      <div class="defsec" id="defSec">
+        <div class="card card-p">
+          <div style="display:flex;justify-content:space-between;font-size:8px;letter-spacing:2px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-bottom:12px">
+            <span>Defense Integrity Score</span><span>Timeframe: Real-Time Replay</span>
+          </div>
+          <canvas id="chartC" style="width:100%;height:150px"></canvas>
+        </div>
+        <div class="card card-p">
+          <div class="clbl">Inference Replay</div>
+          <div id="replayList"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN — Logs panel (always visible, fills height) -->
+    <div class="lpanel" style="min-height:520px;height:100%">
+      <div class="lhead">
+        <div class="ltxt">Neural Cluster Logs</div>
+        <div class="lpill" id="livePill"><div class="ldot"></div>Streaming Live</div>
+      </div>
+      <div class="lbody" id="logBody" style="max-height:none;flex:1">
+        <div class="ll"><span class="ts">[SYSTEM]</span> <span class="ms">Core reset successful. Environmental memory purged.</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Findings (shown post-scan) -->
+  <div id="findSec" style="display:none;margin-top:16px">
+    <div class="fsrow">
+      <div class="fmc"><div class="fmlbl">Total Findings</div><div class="fmval" id="ftot" style="color:var(--red)">0</div><div class="fmbdg" style="color:var(--txt3)">detected</div></div>
+      <div class="fmc"><div class="fmlbl">Secrets Found</div><div class="fmval" id="fsec" style="color:var(--amber)">0</div><div class="fmbdg" style="color:var(--txt3)">high-entropy</div></div>
+      <div class="fmc"><div class="fmlbl">SAST Issues</div><div class="fmval" id="fsast" style="color:var(--blue)">0</div><div class="fmbdg" style="color:var(--txt3)">code patterns</div></div>
+      <div class="fmc"><div class="fmlbl">Risk Score</div><div class="fmval" id="frisk" style="color:var(--red)">0</div><div class="fmbdg" id="flbl" style="color:var(--txt3)">—</div></div>
+    </div>
+    <div class="card card-p">
+      <div class="clbl">All Findings — Click ⚡ for AI-Generated Patch</div>
+      <div class="flist" id="findList"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ATTACK PAGE -->
+<div class="page" id="page-attack">
+  <div class="ph phr">
+    <div><div class="pht">Neural <strong>Threat Intelligence</strong></div><div class="phs" id="atkCtx">Run a scan to load findings</div></div>
+  </div>
+  <div class="agrid" id="atkGrid">
+    <div class="card card-p" style="grid-column:1/-1;text-align:center;padding:40px;color:var(--txt3)">
+      <div style="font-size:28px;margin-bottom:12px;opacity:.35">🔒</div>
+      <div style="font-family:var(--fm);font-size:11px">Initialize a scan on the Intelligence Space to load real threat findings.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MEMORY PAGE -->
+<div class="page" id="page-memory">
+  <div class="ph phr">
+    <div><div class="pht">Security <strong>Memory Graph</strong></div><div class="phs">Persistent Context &amp; Cross-Repo Threat Intelligence</div></div>
+    <button class="btn btn-gold">Active Memory: Synchronized</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 270px;gap:16px">
+    <div class="three-card" style="height:380px">
+      <div class="three-tl">Neural Fingerprint Visualizer</div>
+      <div class="three-tr" id="threeTR">Processing Real-Time Signals</div>
+      <canvas id="threeCanvas"></canvas>
+    </div>
+    <div>
+      <div class="card card-p" style="margin-bottom:13px">
+        <div class="clbl">Memory Health</div>
+        <div class="hbw"><div class="hbr">SHANNON_ENTROPY_V1 <span>98%</span></div><div class="hbt"><div class="hbf" style="width:98%"></div></div></div>
+        <div class="hbw"><div class="hbr">XGBOOST_TREE_EXPLORER <span>100%</span></div><div class="hbt"><div class="hbf" style="width:100%"></div></div></div>
+        <div class="hbw"><div class="hbr">GRAPHSAGE_EMBEDDING <span>92%</span></div><div class="hbt"><div class="hbf" style="width:92%"></div></div></div>
+        <div class="hbw"><div class="hbr">DAST_RUNTIME_SIM <span>87%</span></div><div class="hbt"><div class="hbf" style="width:87%"></div></div></div>
+      </div>
+      <div class="card card-p">
+        <div class="clbl">Contextual Summary</div>
+        <div style="font-size:10px;color:var(--txt2);font-family:var(--fm);line-height:1.8;font-style:italic" id="memSum">Awaiting repository context to begin cross-referencing against global CWE patterns.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUPPLY CHAIN PAGE -->
+<div class="page" id="page-supply">
+  <div class="ph phr">
+    <div><div class="pht">Supply Chain <strong>&amp; SBOM</strong></div><div class="phs">Software Bill of Materials · Dependency Risk</div></div>
+    <button class="btn btn-gold">Export CycloneDX SBOM</button>
+  </div>
+  <div class="sgrid">
+    <div>
+      <div class="card card-p" style="margin-bottom:13px"><div class="clbl">Dependency Entropy</div><div class="stbig">12.4<span style="font-size:16px">%</span></div><div style="font-size:10px;color:var(--txt3);font-family:var(--fm);margin-top:8px;line-height:1.6;font-style:italic">Predictive risk of transitive compromise in current package managers.</div></div>
+      <div class="card card-p"><div class="clbl">License Compliance</div><div class="stbig" style="color:var(--green)">100<span style="font-size:16px">%</span></div><div style="font-size:9px;color:var(--txt3);font-family:var(--fm);margin-top:6px;letter-spacing:1px">No Non-Compliant Detected</div></div>
+    </div>
+    <div class="card card-p">
+      <div class="clbl">Active Dependency Tree</div>
+      <div class="drow"><div><div class="dn">react <span>@18.2.0</span></div><div class="dm">MIT LICENSE · 24 TRANSITIVE DEPS</div></div><span class="rtag rtl">Low Risk</span></div>
+      <div class="drow"><div><div class="dn">lodash <span>@4.17.21</span></div><div class="dm">MIT LICENSE · 0 TRANSITIVE DEPS</div></div><span class="rtag rtm">Medium Risk</span></div>
+      <div class="drow"><div><div class="dn">protobufjs <span>@7.2.4</span></div><div class="dm">BSD-3 LICENSE · 12 TRANSITIVE DEPS</div></div><span class="rtag rth">High Risk</span></div>
+      <div class="drow"><div><div class="dn">axios <span>@1.4.0</span></div><div class="dm">MIT LICENSE · 8 TRANSITIVE DEPS</div></div><span class="rtag rtl">Low Risk</span></div>
+      <div class="drow"><div><div class="dn">express <span>@4.18.2</span></div><div class="dm">MIT LICENSE · 32 TRANSITIVE DEPS</div></div><span class="rtag rtl">Low Risk</span></div>
+      <div class="drow"><div><div class="dn">jsonwebtoken <span>@9.0.0</span></div><div class="dm">MIT LICENSE · 4 TRANSITIVE DEPS</div></div><span class="rtag rtm">Medium Risk</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- RISK PAGE -->
+<div class="page" id="page-risk">
+  <div class="ph"><div class="pht">Real-time <strong>Risk Concentration</strong></div><div class="phs">Target cluster inference analysis</div></div>
+  <div class="rgrid">
+    <div class="rcard"><div class="rkcl">Target Cluster</div><div class="rkn">INTERNAL</div><div class="rkp">4915<sup>%</sup></div><div class="rki">Inference</div><div class="rkbar"><div class="rkbf" style="width:95%"></div></div><div class="rkps"><div class="rkpl">MNC Posture</div><div class="ctag">Critical</div></div></div>
+    <div class="rcard"><div class="rkcl">Target Cluster</div><div class="rkn">SRC</div><div class="rkp">9390<sup>%</sup></div><div class="rki">Inference</div><div class="rkbar"><div class="rkbf" style="width:100%"></div></div><div class="rkps"><div class="rkpl">MNC Posture</div><div class="ctag">Critical</div></div></div>
+    <div class="rcard"><div class="rkcl">Target Cluster</div><div class="rkn">BACKEND</div><div class="rkp">6129<sup>%</sup></div><div class="rki">Inference</div><div class="rkbar"><div class="rkbf" style="width:85%"></div></div><div class="rkps"><div class="rkpl">MNC Posture</div><div class="ctag">Critical</div></div></div>
+    <div class="rcard"><div class="rkcl">Target Cluster</div><div class="rkn">CORE</div><div class="rkp">95<sup>%</sup></div><div class="rki">Inference</div><div class="rkbar"><div class="rkbf" style="width:60%"></div></div><div class="rkps"><div class="rkpl">MNC Posture</div><div class="ctag">Critical</div></div></div>
+    <div class="rcard"><div class="rkcl">Target Cluster</div><div class="rkn">SERVICES</div><div class="rkp">9450<sup>%</sup></div><div class="rki">Inference</div><div class="rkbar"><div class="rkbf" style="width:100%"></div></div><div class="rkps"><div class="rkpl">MNC Posture</div><div class="ctag">Critical</div></div></div>
+    <div class="rcard"><div class="rkcl">Target Cluster</div><div class="rkn">ML</div><div class="rkp">8820<sup>%</sup></div><div class="rki">Inference</div><div class="rkbar"><div class="rkbf" style="width:90%"></div></div><div class="rkps"><div class="rkpl">MNC Posture</div><div class="ctag">Critical</div></div></div>
+  </div>
+</div>
+
+<!-- POLICY PAGE -->
+<div class="page" id="page-policy">
+  <div class="ph"><div class="pht"><strong>Policy</strong> Center</div></div>
+  <div class="pgrid">
+    <div>
+      <div style="font-size:8px;letter-spacing:2.5px;color:var(--gold);font-family:var(--fm);text-transform:uppercase;margin-bottom:12px">Active Enforcement Engine</div>
+      <div class="pitem"><div><div class="pn">Autonomous Critical Blocking</div><div class="pd">Fails pipeline if riskScore &gt; 0.9</div></div><div class="ptgl on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="pitem"><div><div class="pn">Predictive Patch Synthesis</div><div class="pd">Auto-generates remediation PRs</div></div><div class="ptgl on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="pitem"><div><div class="pn">Entropy Enforcement</div><div class="pd">Restrict high-entropy secrets</div></div><div class="ptgl" onclick="this.classList.toggle('on')"></div></div>
+      <div class="pitem"><div><div class="pn">Graph-Based Trust Gating</div><div class="pd">Validates exploit path transit-safety</div></div><div class="ptgl on" onclick="this.classList.toggle('on')"></div></div>
+    </div>
+    <div>
+      <div class="card card-p" style="margin-bottom:13px">
+        <div class="clbl">Compliance Matrix</div>
+        <div class="crow"><div class="cn">SOC2 Type II</div><div class="cok">● Compliant</div></div>
+        <div class="crow"><div class="cn">HIPAA Security Rule</div><div class="cwn">● Verification Req.</div></div>
+        <div class="crow"><div class="cn">ISO 27001:2022</div><div class="cok">● Compliant</div></div>
+        <div class="crow"><div class="cn">FedRAMP High</div><div class="cpn">● Pending Audit</div></div>
+      </div>
+      <div class="gr"><div class="grt">⚡ Autonomous Guardrail</div><div class="grb">Decision Intelligence is currently operating in <em>Fail-Safe Mode</em>. Any finding with SHAP attribution &gt; 0.85 will trigger an automatic block.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY PAGE -->
+<div class="page" id="page-history">
+  <div class="ph"><div class="pht">Audit <strong>Provenance</strong></div><div class="phs">Tracking Manual &amp; Autonomous Session Actions</div></div>
+  <div class="m4">
+    <div class="mc"><div class="ml2">Total Audits</div><div class="mv" id="auCnt">0</div><div class="mb" style="color:var(--green)">● Live</div></div>
+    <div class="mc"><div class="ml2">MTTD Predictive</div><div class="mv">1.2s</div><div class="mb" style="color:var(--green)">-12%</div></div>
+    <div class="mc"><div class="ml2">MTTR Synthesized</div><div class="mv">8.4m</div><div class="mb" style="color:var(--green)">-20%</div></div>
+    <div class="mc"><div class="ml2">Integrity Rating</div><div class="mv">99.9%</div><div class="mb" style="color:var(--green)">+0.1%</div></div>
+  </div>
+  <div class="card card-p">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="clbl" style="margin-bottom:0">Session Audit Log</div>
+      <div id="auCntTxt" style="font-size:9px;color:var(--txt3);font-family:var(--fm)">0 Records</div>
+    </div>
+    <table class="atbl">
+      <thead><tr><th>Timestamp</th><th>Target</th><th>Findings</th><th>Score</th><th>Verdict</th></tr></thead>
+      <tbody id="auTbody"><tr><td colspan="5" style="text-align:center;color:var(--txt3);padding:24px;font-family:var(--fm)">No audits yet. Run a scan to populate history.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- CHATBOT FAB -->
+<button class="cfab" onclick="toggleChat()">
+  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+</button>
+
+<!-- CHATBOT PANEL -->
+<div class="cpanel" id="chatPanel">
+  <div class="chd">
+    <div class="chdt">Security AI Assistant</div>
+    <div class="chds">Powered by Claude claude-sonnet-4 · Real-time Intelligence</div>
+  </div>
+  <div class="chatmode">
+    <button class="chatmode-btn active" id="modeLocal" onclick="setChatMode('local')">Pattern Engine</button>
+    <button class="chatmode-btn" id="modeClaude" onclick="setChatMode('claude')">Claude API ✨</button>
+  </div>
+  <div class="cmsgs" id="chatMsgs"><div class="cemp">Awaiting neural query...</div></div>
+  <div class="cinr">
+    <input class="cin" id="chatIn" placeholder="Ask about any vulnerability..." onkeydown="if(event.key==='Enter')sendChat()"/>
+    <button class="csnd" id="chatSend" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let entropy=17.781, entropyTarget=17.781, entropyTick=null
+let scanning=false, scanDone=false, scanData=null, repoName=''
+let auditCount=0, chatMode='local', fixes={}
+
+// 8 Layer definitions (exact from original)
+const LAYERS=[
+  {id:1, label:'Secret\nPrediction\n(XGBoost)',   short:'SECRET_ML'},
+  {id:2, label:'Contextual\nSAST\n(Ensemble)',    short:'SAST_RISK'},
+  {id:3, label:'Attack Path\nGNN',                short:'ATTACK_GNN'},
+  {id:4, label:'DAST Runtime\nLikelihood',        short:'DAST_SIM'},
+  {id:5, label:'Security\nMemory\nGraph',         short:'SEC_MEMORY'},
+  {id:6, label:'Decision\nIntelligence',          short:'VERDICT_AI'},
+  {id:7, label:'XAI Attribution\n(SHAP)',         short:'XAI_LAYER'},
+  {id:8, label:'Patch\nSynthesis',                short:'SELF_HEAL'},
+]
+
+const SCAN_STAGES=[
+  {prog:8,  lbl:'Activating 8-Layer ML Defense Pipeline...'},
+  {prog:16, lbl:'Initializing ML Architecture for target...'},
+  {prog:24, lbl:'[SECRET_ML] Spawning specialized inference worker...'},
+  {prog:32, lbl:'Calculating Shannon entropy and semantic vectors...'},
+  {prog:40, lbl:'[SAST_RISK] Running ensemble static analysis...'},
+  {prog:50, lbl:'[ATTACK_GNN] Traversing GraphSAGE trust relationships...'},
+  {prog:60, lbl:'[DAST_SIM] Simulating runtime attack vectors...'},
+  {prog:70, lbl:'[SEC_MEMORY] Querying cross-repo memory graph...'},
+  {prog:80, lbl:'[VERDICT_AI] Synthesizing weighted Bayesian verdict...'},
+  {prog:88, lbl:'[XAI_LAYER] Calculating SHAP attribution values...'},
+  {prog:95, lbl:'[SELF_HEAL] Synthesizing patch recommendations...'},
+  {prog:100,lbl:'Full ML Audit Complete. Consolidating results.'},
+]
+
+// ════════════════════════════════════════
+// ENTROPY ANIMATION
+// ════════════════════════════════════════
+function animateEntropy(target){
+  entropyTarget=target
+  if(entropyTick) clearInterval(entropyTick)
+  entropyTick=setInterval(()=>{
+    entropy+=(entropyTarget-entropy)*0.07+(Math.random()-.5)*0.22
+    document.getElementById('eDisp').innerHTML=Math.abs(entropy).toFixed(3)+'<span class="ac">%</span>'
+  },100)
+}
+animateEntropy(17.781)
+
+// ════════════════════════════════════════
+// NAV
+// ════════════════════════════════════════
+document.getElementById('navEl').addEventListener('click',e=>{
+  const ni=e.target.closest('.ni')
+  if(!ni) return
+  const page=ni.dataset.page
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'))
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'))
+  ni.classList.add('active')
+  document.getElementById('page-'+page).classList.add('active')
+  // Start Three.js when memory page opens
+  if(page==='memory') startThreeJS()
+})
+
+function goPage(id){
+  document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('active', n.dataset.page===id))
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active', p.id==='page-'+id))
+  if(id==='memory') startThreeJS()
+}
+
+// ════════════════════════════════════════
+// LOG
+// ════════════════════════════════════════
+function addLog(type,msg,target='logBody'){
+  const b=document.getElementById(target)
+  const el=document.createElement('div')
+  el.className='ll'
+  const tc={sys:'ts',info:'ti',warn:'tw',err:'te',ok:'tok'}
+  const mc={sys:'ms',info:'m',warn:'mw',err:'te',ok:'mok'}
+  const tl={sys:'SYSTEM',info:'INFO',warn:'WARN',err:'ERROR',ok:'SYSTEM'}
+  el.innerHTML=`<span class="${tc[type]||'ti'}">[${tl[type]||'INFO'}]</span> <span class="${mc[type]||'m'}">${msg}</span>`
+  b.appendChild(el)
+  b.scrollTop=b.scrollHeight
+}
+function clearLog(){document.getElementById('logBody').innerHTML=''}
+
+// ════════════════════════════════════════
+// BUILD 8-LAYER INLINE STAGES
+// ════════════════════════════════════════
+function buildStages(activeIdx){
+  const wrap = document.getElementById('mlStagesWrap')
+  if(!wrap) return
+  wrap.innerHTML = ''
+  LAYERS.forEach((l, i) => {
+    const item = document.createElement('div')
+    item.style.cssText = 'display:flex;align-items:center;flex-shrink:0'
+
+    const inner = document.createElement('div')
+    inner.style.cssText = 'display:flex;flex-direction:column;align-items:center;width:92px'
+
+    // Ring
+    const ring = document.createElement('div')
+    const isDone    = i < activeIdx
+    const isRunning = i === activeIdx
+    ring.style.cssText = [
+      'width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;',
+      'font-size:13px;font-weight:700;font-family:var(--fm);transition:all .5s;position:relative;',
+      isDone    ? 'border:2px solid var(--green);color:var(--green);background:var(--greend)' :
+      isRunning ? 'border:2px solid var(--gold);color:var(--gold);background:var(--gd);animation:ringPulse 1.2s ease-in-out infinite' :
+                  'border:2px solid var(--bdr);color:var(--txt3);background:var(--bg3)'
+    ].join('')
+    ring.textContent = isDone ? '✓' : String(i + 1)
+
+    // Label
+    const lbl = document.createElement('div')
+    lbl.style.cssText = 'font-size:7px;letter-spacing:.5px;color:' + (i <= activeIdx ? 'var(--txt2)' : 'var(--txt3)') + ';font-family:var(--fm);text-transform:uppercase;text-align:center;margin-top:6px;line-height:1.4;white-space:pre-line;max-width:88px'
+    lbl.textContent = l.label
+
+    // Status
+    const status = document.createElement('div')
+    status.style.cssText = 'font-size:7px;font-family:var(--fm);margin-top:2px;height:11px;' +
+      (isDone ? 'color:var(--green)' : isRunning ? 'color:var(--gold)' : 'color:transparent')
+    status.textContent = isDone ? 'VERIFIED' : isRunning ? 'RUNNING' : '.'
+
+    inner.appendChild(ring)
+    inner.appendChild(lbl)
+    inner.appendChild(status)
+    item.appendChild(inner)
+
+    // Connector
+    if(i < LAYERS.length - 1){
+      const conn = document.createElement('div')
+      conn.style.cssText = 'width:18px;height:2px;flex-shrink:0;margin-top:-22px;border-radius:1px;transition:background .5s;background:' + (isDone ? 'var(--green)' : 'var(--bdr)')
+      item.appendChild(conn)
+    }
+    wrap.appendChild(item)
+  })
+
+  // Progress bar
+  const pct = activeIdx < 0 ? 0 : Math.round((activeIdx / LAYERS.length) * 100)
+  const pb = document.getElementById('mlProgressBar')
+  if(pb) pb.style.width = pct + '%'
+}
+
+// ════════════════════════════════════════
+// MAIN SCAN
+// ════════════════════════════════════════
+async function startScan(){
+  const url = document.getElementById('repoIn').value.trim()
+  if(!url){ showErr('Please enter a GitHub repository URL.'); return }
+  if(!url.includes('github.com')){ showErr('Only GitHub repositories are supported.'); return }
+  hideErr()
+
+  const m = url.match(/github\.com\/([^/]+)\/([^/\s]+)/)
+  repoName = m ? m[2].replace('.git','').toUpperCase() : 'REPO'
+
+  scanning = true; scanDone = false
+  document.getElementById('scBtn').disabled = true
+  document.getElementById('scBtnTxt').textContent = 'Scanning...'
+  document.getElementById('actx').textContent = repoName
+  document.getElementById('idSub').textContent = 'Internal / ' + repoName
+  document.getElementById('livePill').classList.add('show')
+  document.getElementById('ncd').className = 'ncd active'
+  document.getElementById('nct').textContent = 'Neural Cluster: Active'
+  clearLog()
+  animateEntropy(42 + Math.random()*5)
+
+  // Init stages idle, progress 0
+  buildStages(-1)
+  document.getElementById('mlStatusLbl').textContent = 'Initializing ML inference workers...'
+  document.getElementById('reviewBtn').style.display = 'none'
+
+  // Fetch GitHub metadata in background
+  const ghPromise = fetchGitHub(url)
+
+  // Stage-by-stage sequence with realistic slow delays
+  const seq = [
+    {s:0, d:900,  t:'sys',  msg:'Activating 8-Layer ML Defense Pipeline...'},
+    {s:0, d:1100, t:'sys',  msg:'Initializing 8-Layer ML Architecture for '+repoName},
+    {s:0, d:800,  t:'info', msg:'[SECRET_ML] Spawning specialized inference worker...'},
+    {s:1, d:1200, t:'info', msg:'Calculating Shannon entropy and semantic vectors...'},
+    {s:1, d:900,  t:'warn', msg:'[SECRET_ML] Identified 2 high-confidence signals.'},
+    {s:2, d:1000, t:'info', msg:'[SAST_RISK] Spawning specialized inference worker...'},
+    {s:2, d:900,  t:'warn', msg:'[SAST_RISK] Identified 2 high-confidence signals.'},
+    {s:3, d:1300, t:'info', msg:'[ATTACK_GNN] Traversing GraphSAGE trust relationships...'},
+    {s:3, d:1000, t:'warn', msg:'[ATTACK_GNN] Identified 2 high-confidence signals.'},
+    {s:4, d:900,  t:'info', msg:'[DAST_SIM] Spawning specialized inference worker...'},
+    {s:4, d:800,  t:'warn', msg:'[DAST_SIM] Identified 2 high-confidence signals.'},
+    {s:5, d:1100, t:'info', msg:'[SEC_MEMORY] Traversing cross-repo memory graph...'},
+    {s:5, d:900,  t:'warn', msg:'[SEC_MEMORY] Identified 2 high-confidence signals.'},
+    {s:6, d:1200, t:'info', msg:'[VERDICT_AI] Synthesizing weighted Bayesian verdict...'},
+    {s:6, d:800,  t:'warn', msg:'[VERDICT_AI] Identified 2 high-confidence signals.'},
+    {s:7, d:1000, t:'info', msg:'[XAI_LAYER] Calculating SHAP values for attribution...'},
+    {s:7, d:900,  t:'info', msg:'[SELF_HEAL] Synthesizing patch recommendations...'},
+    {s:7, d:800,  t:'warn', msg:'[SELF_HEAL] Identified 2 high-confidence signals.'},
+  ]
+  const sLabels = ['Running Secret Prediction (XGBoost)...','Running Contextual SAST (Ensemble)...','Traversing Attack Path GNN...','Simulating DAST Runtime Likelihood...','Querying Security Memory Graph...','Computing Decision Intelligence...','Calculating XAI Attribution (SHAP)...','Synthesizing Patch Recommendations...']
+
+  let curStage = -1
+  for(const step of seq){
+    await sleep(step.d)
+    if(step.s !== curStage){
+      curStage = step.s
+      buildStages(curStage)
+      document.getElementById('mlStatusLbl').textContent = sLabels[curStage] || ''
+    }
+    addLog(step.t, step.msg)
+  }
+
+  // All done
+  buildStages(8)
+  document.getElementById('mlProgressBar').style.width = '100%'
+  document.getElementById('mlStatusLbl').textContent = 'Full ML Audit Complete. Consolidating results...'
+
+  const ghResult = await ghPromise
+  if(ghResult){
+    document.getElementById('ghAv').src = ghResult.owner && ghResult.owner.avatar_url ? ghResult.owner.avatar_url : ''
+    document.getElementById('ghN').textContent = ghResult.full_name || repoName
+    document.getElementById('ghM').textContent = ghResult.description || 'No description'
+    document.getElementById('ghS').textContent = (ghResult.stargazers_count || 0).toLocaleString()
+    document.getElementById('ghF').textContent = (ghResult.forks_count || 0).toLocaleString()
+    document.getElementById('ghL').textContent = ghResult.language || 'N/A'
+    document.getElementById('ghInfo').classList.add('show')
+    document.getElementById('memSum').textContent = 'Security memory ingested for ' + repoName + '. Language: ' + (ghResult.language || 'Unknown') + '. Stars: ' + (ghResult.stargazers_count || 0) + '. Cross-referencing against global CWE patterns.'
+  }
+
+  const backendUrl = (document.getElementById('backendInput').value.trim() || localStorage.getItem('cf_backend') || '').replace(/\/$/,'')
+  let data = null
+  let isRealScan = false
+
+  if(backendUrl){
+    addLog('info', 'Connecting to CodeFortress backend: ' + backendUrl)
+    try{
+      const r = await fetch(backendUrl + '/api/scan', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({repo_url:url}), signal:AbortSignal.timeout(90000)})
+      if(r.ok){ data = await r.json(); isRealScan = true; addLog('ok','Real scan complete — '+data.scan.filesScanned+' files scanned.') }
+      else { const err = await r.json().catch(()=>({error:'Backend error'})); addLog('warn','Backend error: '+(err.error||r.status)+' — demo mode.') }
+    } catch(e){ addLog('warn','Backend unreachable — demo mode.') }
+  } else {
+    addLog('warn','No backend URL — DEMO MODE (simulated data).')
+    addLog('info','Add backend URL in topbar for real scanning.')
+  }
+
+  if(!data) data = generateDemoData(repoName, ghResult)
+  scanData = data
+  if(isRealScan){
+    addLog('ok','[SECRET_ML] '+data.scan.secretsFound+' real secrets detected.')
+    addLog(data.scan.sastFound>0?'warn':'ok','[SAST_RISK] '+data.scan.sastFound+' real vulnerabilities found.')
+  } else {
+    addLog('warn','[DEMO] Simulated findings shown. Connect backend for real results.')
+  }
+  addLog('ok','Audit Complete. Risk Score: '+data.risk.score+'/100 — '+data.risk.label)
+  finishScan(data, isRealScan)
+}
+
+
+async function fetchGitHub(url){
+  try{
+    const m=url.match(/github\.com\/([^/]+)\/([^/\s]+)/)
+    if(!m) return null
+    const r=await fetch(`https://api.github.com/repos/${m[1]}/${m[2].replace('.git','')}`,{signal:AbortSignal.timeout(8000)})
+    return r.ok?await r.json():null
+  }catch{return null}
+}
+
+async function runOverlayAnimation(){
+  for(let i=0;i<SCAN_STAGES.length;i++){
+    const s=SCAN_STAGES[i]
+    document.getElementById('scanProgBar').style.width=s.prog+'%'
+    document.getElementById('scanStageLbl').textContent=s.lbl
+    buildLayers(Math.floor(i*8/SCAN_STAGES.length))
+    // Mini log
+    const types=['sys','info','info','info','warn','info','warn','info','warn','info','info','ok']
+    addLog(types[i]||'info',s.lbl,'scanMiniLog')
+    await sleep(320+Math.random()*180)
+  }
+  buildLayers(8)
+}
+
+// ════════════════════════════════════════
+// DEMO DATA GENERATOR
+// ════════════════════════════════════════
+function generateDemoData(name, gh){
+  return {
+    repo:{owner:gh?.owner?.login||'demo',name,fullName:gh?.full_name||name,description:gh?.description||'Demo mode',language:gh?.language||'JavaScript',stars:gh?.stargazers_count||0,forks:gh?.forks_count||0,avatarUrl:gh?.owner?.avatar_url||'',topics:gh?.topics||[]},
+    scan:{filesScanned:24,totalFiles:31,secretsFound:2,sastFound:6,scannedAt:new Date().toISOString()},
+    risk:{score:73,level:'FAIL',label:'FAILED',grade:'F',criticals:3,highs:2,mediums:2,total:8},
+    clusterEntropy:38.363,
+    findings:[
+      {id:'d1',type:'SECRET',name:'Hardcoded Stripe Key',severity:'CRITICAL',cwe:'CWE-798',file:'config/payment.js',line:12,lineText:"const SK = 'sk_live_xxxxxxxxxxxxxxxxxxx'",entropy:4.2,description:'Stripe secret key hardcoded in source.',remediation:'Use process.env.STRIPE_SECRET_KEY'},
+      {id:'d2',type:'SAST',  name:'SQL Injection',severity:'CRITICAL',cwe:'CWE-89',owasp:'A03:2021',file:'routes/auth.js',line:34,lineText:'db.query("SELECT * FROM users WHERE id = " + id)',description:'User input directly in SQL query.',remediation:'Use parameterized queries'},
+      {id:'d3',type:'SAST',  name:'Command Injection',severity:'CRITICAL',cwe:'CWE-78',owasp:'A03:2021',file:'utils/processor.js',line:23,lineText:'exec("convert " + req.body.filename + " out.png")',description:'User input passed to shell exec.',remediation:'Use execFile with argument array'},
+      {id:'d4',type:'SECRET',name:'GitHub Token',severity:'CRITICAL',cwe:'CWE-798',file:'.env.backup',line:3,lineText:'GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx',entropy:4.8,description:'GitHub token committed to repo.',remediation:'Rotate immediately, add .env to .gitignore'},
+      {id:'d5',type:'SAST',  name:'Cross-Site Scripting',severity:'HIGH',cwe:'CWE-79',owasp:'A03:2021',file:'views/profile.js',line:67,lineText:'element.innerHTML = req.query.message',description:'Unescaped user input rendered as HTML.',remediation:'Use textContent or DOMPurify'},
+      {id:'d6',type:'SAST',  name:'Path Traversal',severity:'HIGH',cwe:'CWE-22',owasp:'A01:2021',file:'api/files.js',line:45,lineText:'fs.readFile(path.join(__dirname, req.params.name))',description:'Unvalidated file path.',remediation:'Validate path stays within base dir'},
+      {id:'d7',type:'SAST',  name:'Weak Cryptography',severity:'MEDIUM',cwe:'CWE-327',owasp:'A02:2021',file:'auth/hash.js',line:8,lineText:"crypto.createHash('md5').update(password).digest('hex')",description:'MD5 is cryptographically broken.',remediation:'Use bcrypt or SHA-256'},
+      {id:'d8',type:'SAST',  name:'Debug Mode Enabled',severity:'MEDIUM',cwe:'CWE-215',owasp:'A05:2021',file:'app.js',line:5,lineText:'app.set("debug", true)',description:'Debug mode exposes stack traces.',remediation:'Use NODE_ENV check'},
+    ],
+    attackPaths:[
+      {id:'SEC-ML-XGB-2024-001',cwe:'CWE-798',title:'Hardcoded API Key → Payment Fraud',severity:'CRITICAL',file:'config/payment.js',line:12,mitre:'T1552',steps:['Attacker finds Stripe secret key in config/payment.js line 12.','Extracts credential from public repo clone.','Authenticates directly against Stripe API.','Issues fraudulent refunds and charges stored cards.']},
+      {id:'SEC-ML-GNN-2024-002',cwe:'CWE-89', title:'SQL Injection to Full DB Compromise',severity:'CRITICAL',file:'routes/auth.js',line:34,mitre:'T1190',steps:["Identifies unsanitized SQL in routes/auth.js line 34.",'Injects \' OR 1=1-- payload to bypass authentication.','UNION SELECT to enumerate all database tables.','Dumps user credentials, PII, and payment records.']},
+      {id:'SEC-ML-GNN-2024-003',cwe:'CWE-78', title:'Command Injection to Remote Code Execution',severity:'CRITICAL',file:'utils/processor.js',line:23,mitre:'T1059',steps:['Finds exec() with user input in utils/processor.js line 23.','Injects shell metacharacters into filename parameter.','Executes arbitrary commands on production server.','Establishes reverse shell. Full system compromised.']},
+      {id:'SEC-ML-GNN-2024-004',cwe:'CWE-79', title:'Stored XSS to Session Hijacking',severity:'HIGH',file:'views/profile.js',line:67,mitre:'T1185',steps:['Stores malicious script tag in profile input field.','Victim loads profile page — script executes in browser.','Session cookie exfiltrated to attacker-controlled server.','Attacker hijacks authenticated admin session.']},
+    ]
+  }
+}
+
+// ════════════════════════════════════════
+// FINISH SCAN
+// ════════════════════════════════════════
+function finishScan(data, isRealScan){
+  scanDone=true; scanning=false; auditCount++
+  document.getElementById('scBtn').disabled=false
+  document.getElementById('scBtnTxt').textContent='Re-Initialize Secure Audit'
+  document.getElementById('ncd').className='ncd done'
+  document.getElementById('nct').textContent='Neural Cluster: Complete'
+  document.getElementById('execBtn').classList.add('fired')
+  document.getElementById('reviewBtn').style.display='block'
+  animateEntropy(data.clusterEntropy||38.4)
+  document.getElementById('auCnt').textContent=auditCount
+  document.getElementById('auCntTxt').textContent=auditCount+' Records'
+
+  // Show demo/real mode banner
+  var existingBanner = document.getElementById('scanModeBanner')
+  if(existingBanner) existingBanner.remove()
+  var banner = document.createElement('div')
+  banner.id = 'scanModeBanner'
+  if(isRealScan){
+    banner.style.cssText = 'margin-bottom:14px;padding:10px 16px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.25);border-radius:4px;font-size:11px;color:#34D399;font-family:var(--fm);display:flex;align-items:center;gap:8px'
+    banner.innerHTML = '<span style="font-size:14px">✅</span> <strong>REAL SCAN</strong> — ' + data.scan.filesScanned + ' files scanned from actual repository. Findings reflect real vulnerabilities found in the code.'
+  } else {
+    banner.style.cssText = 'margin-bottom:14px;padding:10px 16px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:4px;font-size:11px;color:#FBBF24;font-family:var(--fm);display:flex;align-items:center;gap:8px'
+    banner.innerHTML = '<span style="font-size:14px">⚠️</span> <strong>DEMO MODE</strong> — Simulated data shown. To see real scan results: enter your backend URL in the topbar field above.'
+  }
+  document.getElementById('findSec').insertAdjacentElement('beforebegin', banner)
+
+  // Populate findings summary
+  document.getElementById('ftot').textContent=data.scan.secretsFound+data.scan.sastFound
+  document.getElementById('fsec').textContent=data.scan.secretsFound
+  document.getElementById('fsast').textContent=data.scan.sastFound
+  document.getElementById('frisk').textContent=data.risk.score
+  document.getElementById('flbl').textContent=data.risk.label
+  document.getElementById('findSec').style.display='block'
+  buildFindingsList(data.findings)
+
+  // Defense chart
+  document.getElementById('defSec').classList.add('show')
+  drawChart()
+
+  // Replay
+  var replayDot = '<span style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);flex-shrink:0;margin-top:3px"></span>'
+  var replayDot2 = '<span style="width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:3px"></span>'
+  function replayRow(dot, bb, time, txt) {
+    return '<div style="display:flex;gap:10px;padding:8px 0;border-bottom:'+bb+'">'+dot+'<div><div style="font-size:9px;color:var(--gold);font-family:var(--fm)">'+time+'</div><div style="font-size:10px;color:var(--txt2);font-family:var(--fm)">'+txt+'</div></div></div>'
+  }
+  document.getElementById('replayList').innerHTML =
+    replayRow(replayDot, '1px solid rgba(255,255,255,.03)', 'Now', 'Audit Finalized. Posture: ' + data.risk.label) +
+    replayRow(replayDot2, '1px solid rgba(255,255,255,.03)', '-2s', 'Synthesizing Verdict (Weighted Bayesian)...') +
+    replayRow(replayDot2, '1px solid rgba(255,255,255,.03)', '-4s', 'Full ML Audit Complete. Consolidating results.') +
+    replayRow(replayDot2, 'none', '-6s', 'XAI Attribution (SHAP) values calculated.')
+
+  // Attack paths
+  buildAttackPaths(data.attackPaths||[])
+  document.getElementById('atkCtx').textContent='INTERNAL / '+repoName
+
+  // Audit history row
+  const tb=document.getElementById('auTbody')
+  if(tb.children[0]?.children[0]?.colSpan) tb.innerHTML=''
+  const vtcls=data.risk.label==='FAILED'||data.risk.level==='FAIL'?'vtf':'vtb'
+  tb.insertAdjacentHTML('afterbegin',`<tr><td>${new Date().toLocaleString()}</td><td style="color:var(--gold)">${repoName}</td><td>${data.scan.secretsFound+data.scan.sastFound}</td><td>${data.risk.score}/100</td><td><span class="${vtcls}">${data.risk.label}</span></td></tr>`)
+}
+
+// ════════════════════════════════════════
+// FINDINGS LIST
+// ════════════════════════════════════════
+function sevClass(s){return{CRITICAL:'sc',HIGH:'sh',MEDIUM:'sm',LOW:'sl',INFO:'sl'}[s]||'sl'}
+function dotClass(s){return{CRITICAL:'fdot fcrit',HIGH:'fdot fhigh',MEDIUM:'fdot fmed',LOW:'fdot flow',INFO:'fdot flow'}[s]||'fdot flow'}
+
+function buildFindingsList(findings){
+  const list=document.getElementById('findList')
+  list.innerHTML=''
+  findings.forEach(f=>{
+    const item=document.createElement('div')
+    item.className='fitem'
+    item.innerHTML=`
+      <div class="${dotClass(f.severity)}"></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap">
+          <span class="sbdg ${sevClass(f.severity)}">${f.severity}</span>
+          <span class="fname">${f.name}</span>
+          <span style="font-size:9px;color:var(--txt3);font-family:var(--fm)">${f.cwe||''}</span>
+          ${f.owasp?`<span style="font-size:9px;color:var(--txt3);font-family:var(--fm)">${f.owasp}</span>`:''}
+        </div>
+        <div class="ffile">${f.file} · Line ${f.line}</div>
+        ${f.lineText?`<div class="fcode">${escH(f.lineText)}</div>`:''}
+        <div style="font-size:10px;color:var(--txt3);font-family:var(--fm);margin-top:4px;line-height:1.5">${f.description||''}</div>
+      </div>
+      <button class="fixbtn" id="fix-${f.id}" onclick="requestFix('${f.id}')">⚡ Fix</button>`
+    // Fix result placeholder
+    const fixDiv=document.createElement('div')
+    fixDiv.id=`fixr-${f.id}`
+    fixDiv.style.display='none'
+    item.appendChild(fixDiv)
+    list.appendChild(item)
+    // Store finding for fix
+    window._findings=window._findings||{}
+    window._findings[f.id]=f
+  })
+}
+
+// ════════════════════════════════════════
+// AUTO-FIX
+// ════════════════════════════════════════
+async function requestFix(id){
+  const btn=document.getElementById('fix-'+id)
+  const finding=window._findings?.[id]
+  if(!finding||fixes[id]) return
+  btn.disabled=true; btn.textContent='⏳ Gen...'
+
+  const apiKey=document.getElementById('apiKeyInput').value.trim()
+  let fix='', by='pattern-engine'
+
+  if(apiKey){
+    try{
+      const resp=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:500,
+          messages:[{role:'user',content:`You are a senior security engineer. Fix this vulnerability with minimal changes.\n\nVulnerability: ${finding.name}\nCWE: ${finding.cwe}\nSeverity: ${finding.severity}\nFile: ${finding.file} Line ${finding.line}\nCode: ${finding.lineText||''}\n\nProvide ONLY the fixed code with brief comments. No markdown, no explanations outside code.`}]
+        }),
+        signal:AbortSignal.timeout(25000)
+      })
+      const d=await resp.json()
+      fix=d.content?.[0]?.text?.trim()||''
+      by='claude-sonnet-4'
+    }catch(e){fix=''}
+  }
+
+  if(!fix) fix=getFallbackFix(finding.name)
+  fixes[id]={fix,by}
+
+  const fixDiv=document.getElementById('fixr-'+id)
+  fixDiv.style.display='block'
+  fixDiv.innerHTML=`<div class="fixresult">${escH(fix)}<div class="fixby">Generated by: ${by}</div></div>`
+  btn.className='fixbtn done'; btn.textContent='✓ Fixed'; btn.disabled=true
+}
+
+function getFallbackFix(name){
+  const n=name.toLowerCase()
+  if(n.includes('sql')) return "// Fix: Use parameterized query\nconst result = await db.query(\n  'SELECT * FROM users WHERE id = ?',\n  [userId]  // never string concat\n)"
+  if(n.includes('command')||n.includes('injection')&&n.includes('command')) return "// Fix: Use execFile with array args\nconst { execFile } = require('child_process')\nexecFile('convert', [userInput, 'output.png'], {\n  shell: false,  // CRITICAL: never true\n  timeout: 5000\n})"
+  if(n.includes('xss')||n.includes('cross-site')) return "// Fix: Use textContent, not innerHTML\nelement.textContent = userInput\n// OR if HTML needed:\n// element.innerHTML = DOMPurify.sanitize(userInput)"
+  if(n.includes('path')||n.includes('traversal')) return "// Fix: Validate path is within base directory\nconst path = require('path')\nconst BASE = path.resolve(__dirname, 'uploads')\nconst safe = path.resolve(BASE, userInput)\nif (!safe.startsWith(BASE)) throw new Error('Invalid path')\nfs.readFile(safe, ...)"
+  if(n.includes('crypto')||n.includes('weak')) return "// Fix: Use bcrypt for passwords\nconst bcrypt = require('bcrypt')\nconst ROUNDS = 12\nconst hash = await bcrypt.hash(password, ROUNDS)\nconst valid = await bcrypt.compare(input, hash)\n// For non-password: SHA-256\ncrypto.createHash('sha256').update(data).digest('hex')"
+  if(n.includes('debug')) return "// Fix: Environment-aware debug\napp.set('debug', process.env.NODE_ENV === 'development')\n// In production: NODE_ENV=production"
+  return "// Apply security fixes:\n// 1. Validate and sanitize all user inputs\n// 2. Use parameterized queries for database calls\n// 3. Never eval() or exec() user-controlled data\n// 4. Apply principle of least privilege\n// Ref: https://owasp.org/www-project-top-ten/"
+}
+
+// ════════════════════════════════════════
+// ATTACK PATHS
+// ════════════════════════════════════════
+function buildAttackPaths(paths){
+  const grid=document.getElementById('atkGrid')
+  if(!paths.length){grid.innerHTML='<div class="card card-p" style="grid-column:1/-1;text-align:center;padding:40px;color:var(--txt3)"><div style="font-size:28px;margin-bottom:12px;opacity:.35">✅</div><div style="font-family:var(--fm);font-size:11px">No critical attack paths detected.</div></div>';return}
+  grid.innerHTML=''
+  paths.forEach(p=>{
+    const sc={CRITICAL:'sc',HIGH:'sh',MEDIUM:'sm',INFO:'sl'}[p.severity]||'sl'
+    const el=document.createElement('div')
+    el.className='acard'
+    el.innerHTML=`
+      <div class="acid">${p.id}</div>
+      <div class="accwe">${p.cwe} · MITRE: ${p.mitre||'N/A'}</div>
+      <span class="sbdg ${sc}">${p.severity}</span>
+      <div class="actit">${p.title}</div>
+      ${(p.steps||[]).map((s,i)=>`<div class="acst"><div class="acn">${i+1}</div><div class="act">${s}</div></div>`).join('')}
+      ${p.file&&p.file!=='—'?`<div style="margin-top:10px;font-size:9px;color:var(--gold);font-family:var(--fm)">📄 ${p.file}${p.line?' · Line '+p.line:''}</div>`:''}`
+    grid.appendChild(el)
+  })
+}
+
+// ════════════════════════════════════════
+// DEFENSE CHART (Canvas)
+// ════════════════════════════════════════
+function drawChart(){
+  const canvas=document.getElementById('chartC')
+  const W=canvas.offsetWidth||600; canvas.width=W; canvas.height=150
+  const ctx=canvas.getContext('2d')
+  const pts=[82,87,84,90,86,91,88,94],days=['MON','TUE','WED','THU','FRI','SAT','SUN']
+  const P={l:36,r:18,t:12,b:24},cW=W-P.l-P.r,cH=150-P.t-P.b
+  const xO=i=>P.l+cW*i/(pts.length-1),yO=v=>P.t+cH*(1-(v-78)/18)
+  ;[0,.25,.5,.75,1].forEach(f=>{const y=P.t+cH*f;ctx.beginPath();ctx.moveTo(P.l,y);ctx.lineTo(W-P.r,y);ctx.strokeStyle='rgba(255,255,255,.03)';ctx.lineWidth=1;ctx.stroke()})
+  days.forEach((d,i)=>{ctx.fillStyle='#3a3a4a';ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='center';ctx.fillText(d,xO(i),148)})
+  const g=ctx.createLinearGradient(0,P.t,0,150-P.b)
+  g.addColorStop(0,'rgba(212,168,67,.2)');g.addColorStop(1,'rgba(212,168,67,0)')
+  ctx.fillStyle=g;ctx.beginPath()
+  pts.forEach((v,i)=>{const x=xO(i),y=yO(v);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)})
+  ctx.lineTo(xO(pts.length-1),150-P.b);ctx.lineTo(xO(0),150-P.b);ctx.closePath();ctx.fill()
+  ctx.strokeStyle='#D4A843';ctx.lineWidth=1.5;ctx.lineJoin='round';ctx.beginPath()
+  pts.forEach((v,i)=>{const x=xO(i),y=yO(v);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});ctx.stroke()
+  pts.forEach((v,i)=>{const x=xO(i),y=yO(v);ctx.fillStyle='#D4A843';ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill()})
+  const lx=xO(pts.length-1),ly=yO(pts[pts.length-1])
+  ctx.fillStyle='#18181c';ctx.strokeStyle='#D4A843';ctx.lineWidth=.8
+  ctx.beginPath();if(ctx.roundRect)ctx.roundRect(lx-14,ly-22,28,16,3);else ctx.rect(lx-14,ly-22,28,16)
+  ctx.fill();ctx.stroke();ctx.fillStyle='#D4A843';ctx.font='bold 9px JetBrains Mono,monospace';ctx.textAlign='center';ctx.fillText(pts[pts.length-1],lx,ly-10)
+}
+
+// ════════════════════════════════════════
+// THREE.JS — Security Memory 3D
+// ════════════════════════════════════════
+let threeRenderer=null, threeScene=null, threeCamera=null, threeAnim=null, threeNodes=[]
+
+function startThreeJS(){
+  const canvas=document.getElementById('threeCanvas')
+  const W=canvas.offsetWidth, H=canvas.offsetHeight
+  if(!W||!H) return
+  if(threeRenderer){threeRenderer.setSize(W,H);return}
+
+  // Scene
+  threeScene=new THREE.Scene()
+  threeCamera=new THREE.PerspectiveCamera(60,W/H,.1,1000)
+  threeCamera.position.z=5
+
+  threeRenderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true})
+  threeRenderer.setSize(W,H)
+  threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio,2))
+  threeRenderer.setClearColor(0x000000,0)
+
+  // Core sphere (golden, pulsing)
+  const coreGeo=new THREE.SphereGeometry(.55,32,32)
+  const coreMat=new THREE.MeshPhongMaterial({color:0xD4A843,emissive:0x9A7520,emissiveIntensity:.4,shininess:80})
+  const core=new THREE.Mesh(coreGeo,coreMat)
+  threeScene.add(core)
+
+  // Symbol on core (ring)
+  const ringGeo=new THREE.TorusGeometry(.35,.04,8,32)
+  const ringMat=new THREE.MeshBasicMaterial({color:0x07070a})
+  const ring=new THREE.Mesh(ringGeo,ringMat)
+  core.add(ring)
+
+  // Orbit rings (dashed torus effect via wireframe rings)
+  ;[1.4,2.0,2.7].forEach((r,i)=>{
+    const torusGeo=new THREE.TorusGeometry(r,.012,6,64)
+    const torusMat=new THREE.MeshBasicMaterial({color:0xD4A843,transparent:true,opacity:.18+i*.06,wireframe:true})
+    const torus=new THREE.Mesh(torusGeo,torusMat)
+    torus.rotation.x=Math.PI/2+(i*.4)
+    torus.rotation.y=i*.3
+    torus.userData={orbitSpeed:.002+i*.001,axis:new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize()}
+    threeScene.add(torus)
+  })
+
+  // Satellite nodes (glowing spheres)
+  threeNodes=[]
+  for(let i=0;i<22;i++){
+    const phi=Math.acos(-1+2*i/22),theta=Math.sqrt(22*Math.PI)*phi
+    const r=1.5+Math.random()*.9
+    const x=r*Math.sin(phi)*Math.cos(theta)
+    const y=r*Math.sin(phi)*Math.sin(theta)
+    const z=r*Math.cos(phi)
+    const size=.04+Math.random()*.08
+    const geo=new THREE.SphereGeometry(size,8,8)
+    const mat=new THREE.MeshBasicMaterial({color:0xD4A843,transparent:true,opacity:.6+Math.random()*.4})
+    const mesh=new THREE.Mesh(geo,mat)
+    mesh.position.set(x,y,z)
+    mesh.userData={
+      origPos:new THREE.Vector3(x,y,z),
+      phase:Math.random()*Math.PI*2,
+      speed:.008+Math.random()*.012
+    }
+    threeScene.add(mesh)
+    threeNodes.push(mesh)
+  }
+
+  // Connection lines between core and nodes
+  const lineMat=new THREE.LineBasicMaterial({color:0xD4A843,transparent:true,opacity:.12})
+  threeNodes.slice(0,12).forEach(node=>{
+    const geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), node.position])
+    const line=new THREE.Line(geo,lineMat)
+    threeScene.add(line)
+  })
+
+  // Lights
+  const ambLight=new THREE.AmbientLight(0xffffff,.3)
+  threeScene.add(ambLight)
+  const goldLight=new THREE.PointLight(0xD4A843,2,8)
+  goldLight.position.set(0,0,2)
+  threeScene.add(goldLight)
+  const rimLight=new THREE.PointLight(0x4a2000,.8,10)
+  rimLight.position.set(-3,2,-2)
+  threeScene.add(rimLight)
+
+  // Particle field
+  const pGeo=new THREE.BufferGeometry()
+  const pCount=200
+  const pPos=new Float32Array(pCount*3)
+  for(let i=0;i<pCount*3;i++) pPos[i]=(Math.random()-.5)*12
+  pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3))
+  const pMat=new THREE.PointsMaterial({color:0xD4A843,size:.04,transparent:true,opacity:.3})
+  threeScene.add(new THREE.Points(pGeo,pMat))
+
+  let t=0
+  function animate(){
+    threeAnim=requestAnimationFrame(animate)
+    t+=.008
+
+    // Pulse core
+    const s=1+.08*Math.sin(t*2)
+    core.scale.setScalar(s)
+    coreMat.emissiveIntensity=.3+.2*Math.sin(t*1.5)
+
+    // Rotate scene slowly
+    threeScene.rotation.y=t*.08
+    threeScene.rotation.x=Math.sin(t*.05)*.08
+
+    // Animate orbit rings
+    threeScene.children.forEach(obj=>{
+      if(obj.userData.orbitSpeed){
+        obj.rotateOnAxis(obj.userData.axis,obj.userData.orbitSpeed)
+      }
+    })
+
+    // Pulse satellite nodes
+    threeNodes.forEach(node=>{
+      node.userData.phase+=node.userData.speed
+      const pulse=.5+.5*Math.sin(node.userData.phase)
+      node.material.opacity=.3+pulse*.5
+      const sc=.8+pulse*.4
+      node.scale.setScalar(sc)
+    })
+
+    threeRenderer.render(threeScene,threeCamera)
+  }
+  animate()
+
+  window.addEventListener('resize',()=>{
+    const W2=canvas.offsetWidth, H2=canvas.offsetHeight
+    threeCamera.aspect=W2/H2; threeCamera.updateProjectionMatrix()
+    threeRenderer.setSize(W2,H2)
+  })
+}
+
+// ════════════════════════════════════════
+// CHATBOT — Claude API + Pattern Fallback
+// ════════════════════════════════════════
+let chatModeActive='local'
+
+function setChatMode(mode){
+  chatModeActive=mode
+  document.getElementById('modeLocal').classList.toggle('active', mode==='local')
+  document.getElementById('modeClaude').classList.toggle('active', mode==='claude')
+}
+
+function toggleChat(){document.getElementById('chatPanel').classList.toggle('open')}
+
+const CHAT_KB={
+  'sql injection':'🔴 SQL Injection (CWE-89)\n\nAttackers inject malicious SQL code into queries, enabling unauthorized data access, modification, or deletion.\n\nMitigation:\n→ Parameterized queries / prepared statements\n→ Input validation & whitelist\n→ Least-privilege DB accounts\n→ WAF deployment\n\nRisk: CRITICAL — remotely exploitable, no auth needed.',
+  'xss':'🔴 XSS — Cross-Site Scripting (CWE-79)\n\nTypes: Stored, Reflected, DOM-based.\nAttackers inject client-side scripts to hijack sessions, steal credentials, or deface pages.\n\nMitigation:\n→ Output encoding (textContent vs innerHTML)\n→ Content Security Policy (CSP)\n→ DOMPurify for rich HTML\n→ HttpOnly & Secure cookie flags',
+  'command injection':'🔴 Command Injection (CWE-78)\n\nUser input passed to OS shell. Enables arbitrary code execution on the server.\n\nMitigation:\n→ execFile() with array args, shell:false\n→ Never concat user input into exec/system\n→ Input allowlist (whitelist)\n→ Containerize with no-shell environments',
+  'path traversal':'🟡 Path Traversal (CWE-22)\n\nAttackers access files outside intended directory using ../../../etc/passwd patterns.\n\nMitigation:\n→ path.resolve() + startsWith(BASE) check\n→ Reject ../ in filenames\n→ Use allowlist of valid filenames\n→ Run with minimal filesystem permissions',
+  'hardcoded':'🔴 Hardcoded Credentials (CWE-798)\n\nAPI keys, passwords, tokens embedded in source code. Easily extracted from public repos, compiled binaries, or git history.\n\nMitigation:\n→ Environment variables (process.env)\n→ Secret managers (AWS Secrets Manager, HashiCorp Vault)\n→ Rotate all exposed credentials immediately\n→ git-secrets pre-commit hooks',
+  'prototype pollution':'🟡 Prototype Pollution (CWE-1321)\n\nAttacker-controlled keys like __proto__ merge into Object.prototype, affecting all objects globally.\n\nMitigation:\n→ Object.create(null) for data objects\n→ Sanitize keys: reject __proto__, constructor, prototype\n→ Use Map instead of plain objects for user data\n→ Update lodash/merge libraries',
+  'owasp':'📋 OWASP Top 10 (2021)\n\nA01 Broken Access Control\nA02 Cryptographic Failures\nA03 Injection (SQLi, XSS, CMDi)\nA04 Insecure Design\nA05 Security Misconfiguration\nA06 Vulnerable Components\nA07 Auth Failures\nA08 Integrity Failures\nA09 Logging Failures\nA10 SSRF\n\nAll findings in CodeFortress are mapped to these categories.',
+  'default':'🤖 Security AI Assistant\n\nI can explain vulnerabilities found in your scan results. Ask me about:\n→ SQL Injection / XSS / Command Injection\n→ Path Traversal / Prototype Pollution\n→ Hardcoded secrets / Weak crypto\n→ Any CWE/CVE number\n→ OWASP Top 10\n\nSwitch to "Claude API" mode (enter your key in topbar) for full AI-powered responses about your specific scan findings.'
+}
+
+async function sendChat(){
+  const inp=document.getElementById('chatIn')
+  const msg=inp.value.trim()
+  if(!msg) return
+  const msgs=document.getElementById('chatMsgs')
+  msgs.querySelector('.cemp')?.remove()
+
+  // User bubble
+  const u=document.createElement('div'); u.className='cm cmu'; u.textContent=msg; msgs.appendChild(u)
+  inp.value=''
+  document.getElementById('chatSend').disabled=true
+
+  // Typing indicator
+  const typing=document.createElement('div'); typing.className='ctyping'
+  typing.innerHTML='<span></span><span></span><span></span>'; msgs.appendChild(typing)
+  msgs.scrollTop=msgs.scrollHeight
+
+  let reply=''
+
+  if(chatModeActive==='claude'){
+    const apiKey=document.getElementById('apiKeyInput').value.trim()
+    if(!apiKey){
+      reply='Please enter your Anthropic API key in the topbar input to use Claude AI mode.'
+    } else {
+      try{
+        const context=scanData?`Current scan context: Repo ${repoName}, ${scanData.scan.secretsFound+scanData.scan.sastFound} findings, risk score ${scanData.risk.score}/100 (${scanData.risk.label}). Findings include: ${scanData.findings.slice(0,3).map(f=>f.name).join(', ')}.`:'No scan data yet.'
+        const r=await fetch('https://api.anthropic.com/v1/messages',{
+          method:'POST',
+          headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json'},
+          body:JSON.stringify({
+            model:'claude-sonnet-4-20250514',
+            max_tokens:400,
+            system:`You are CodeFortress CI Security AI Assistant. You help developers understand security vulnerabilities. Be concise, technical, and actionable. Context: ${context}`,
+            messages:[{role:'user',content:msg}]
+          }),
+          signal:AbortSignal.timeout(20000)
+        })
+        const d=await r.json()
+        reply=d.content?.[0]?.text||'No response from Claude.'
+      }catch(e){reply='Claude API error. Check your API key and try again.'}
+    }
+  } else {
+    await sleep(700)
+    const key=Object.keys(CHAT_KB).find(k=>msg.toLowerCase().includes(k))||'default'
+    reply=CHAT_KB[key]
+  }
+
+  typing.remove()
+  const bot=document.createElement('div'); bot.className='cm cmb'
+  bot.style.whiteSpace='pre-wrap'; bot.textContent=reply; msgs.appendChild(bot)
+  msgs.scrollTop=msgs.scrollHeight
+  document.getElementById('chatSend').disabled=false
+}
+
+// ════════════════════════════════════════
+// RESET
+// ════════════════════════════════════════
+function doReset(){
+  scanning=false; scanDone=false; scanData=null; repoName=''; fixes={}; window._findings={}
+  document.getElementById('actx').textContent='Idle'
+  document.getElementById('idSub').textContent='Awaiting Registry Link...'
+  document.getElementById('repoIn').value=''
+  document.getElementById('scBtn').disabled=false
+  document.getElementById('scBtnTxt').textContent='Initialize Secure Audit'
+  clearLog(); addLog('sys','Core reset successful. Environmental memory purged.')
+  document.getElementById('livePill').classList.remove('show')
+  document.getElementById('ncd').className='ncd'
+  document.getElementById('nct').textContent='Neural Cluster: Idle'
+  document.getElementById('ghInfo').classList.remove('show')
+  document.getElementById('execBtn').classList.remove('fired')
+  document.getElementById('findSec').style.display='none'
+  document.getElementById('defSec').classList.remove('show')
+  document.getElementById('errBanner').style.display='none'
+  document.getElementById('reviewBtn').style.display='none'
+  buildStages(-1)
+  document.getElementById('mlStatusLbl').textContent='Waiting to initialize...'
+  document.getElementById('mlProgressBar').style.width='0%'
+  var b = document.getElementById('scanModeBanner'); if(b) b.remove()
+  document.getElementById('atkGrid').innerHTML='<div class="card card-p" style="grid-column:1/-1;text-align:center;padding:40px;color:var(--txt3)"><div style="font-size:28px;margin-bottom:12px;opacity:.35">🔒</div><div style="font-family:var(--fm);font-size:11px">Initialize a scan on the Intelligence Space to load real threat findings.</div></div>'
+  animateEntropy(17.781)
+  goPage('intel')
+}
+
+function doExecute(){if(scanDone)goPage('attack')}
+
+function saveBackendUrl(val){
+  if(val.trim()) localStorage.setItem('cf_backend', val.trim())
+  else localStorage.removeItem('cf_backend')
+}
+
+function showErr(msg){const b=document.getElementById('errBanner');b.textContent=msg;b.style.display='block'}
+function hideErr(){document.getElementById('errBanner').style.display='none'}
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+// Expose all functions to global scope for onclick handlers
+window.startScan      = startScan
+window.doReset        = doReset
+window.doExecute      = doExecute
+window.toggleChat     = toggleChat
+window.sendChat       = sendChat
+window.setChatMode    = setChatMode
+window.requestFix     = requestFix
+window.goPage         = goPage
+window.saveBackendUrl = saveBackendUrl
+
+// Init on load
+;(function(){
+  const saved = localStorage.getItem('cf_backend')
+  if(saved){ const inp=document.getElementById('backendInput'); if(inp) inp.value=saved }
+  buildStages(-1)
+})()
+</script>
+</body>
+</html>

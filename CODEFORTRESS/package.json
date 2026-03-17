@@ -1,0 +1,14 @@
+{
+  "name": "codefortress-ci",
+  "version": "1.0.0",
+  "description": "Autonomous Risk-Adaptive Secure CI/CD Platform — Final Year Project",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npx serve . -p 3000",
+    "install:all": "cd backend && npm install",
+    "start": "cd backend && npm start"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}

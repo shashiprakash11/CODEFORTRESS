@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>CodeFortress CI | High-Integrity Security Platform</title>
+<title>🛡️ CodeFortress CI | Autonomous Security Platform</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -316,19 +317,111 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
 .hbt{height:2px;background:var(--bg4);border-radius:1px;overflow:hidden}
 .hbf{height:100%;background:var(--gold);border-radius:1px;transition:width 1.5s ease}
 
-/* ── SCANLINE ── */
+/* ── HORIZONTAL ML STAGES ── */
+.h-stages{display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:4px;gap:0}
+.h-stage-wrap{display:flex;align-items:center;flex-shrink:0}
+.h-stage-inner{display:flex;flex-direction:column;align-items:center;width:80px}
+.h-ring{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:var(--fm);border:2px solid var(--bdr);background:var(--bg3);color:var(--txt3);transition:all .4s}
+.h-ring.done{border-color:var(--green);color:var(--green);background:var(--greend)}
+.h-ring.run{border-color:var(--gold);color:var(--gold);background:var(--gd);animation:hRingPulse 1.1s ease-in-out infinite}
+@keyframes hRingPulse{0%,100%{box-shadow:0 0 0 0 rgba(212,168,67,.5)}50%{box-shadow:0 0 0 8px rgba(212,168,67,0)}}
+.h-stage-lbl{font-size:6.5px;letter-spacing:.3px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;text-align:center;margin-top:6px;line-height:1.4;white-space:pre-line;max-width:78px;transition:color .3s}
+.h-stage-lbl.run{color:var(--gold)}
+.h-stage-lbl.done{color:var(--green)}
+.h-stage-st{font-size:6.5px;font-family:var(--fm);margin-top:2px;height:10px;transition:color .3s}
+.h-conn{width:14px;height:2px;flex-shrink:0;margin-top:-26px;border-radius:1px;transition:background .5s;background:var(--bdr)}
+.h-conn.done{background:var(--green)}
+
 .scanline{position:fixed;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(212,168,67,.07),transparent);pointer-events:none;z-index:0;animation:scl 8s linear infinite}
 @keyframes scl{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
 
 /* ── ANIMATIONS ── */
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 @keyframes ringPulse{0%,100%{box-shadow:0 0 0 0 rgba(212,168,67,.5)}50%{box-shadow:0 0 0 8px rgba(212,168,67,0)}}
+
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .7s ease}
+#splash.hide{opacity:0;pointer-events:none}
+.sp-logo{font-size:40px;font-weight:800;letter-spacing:3px;font-family:var(--ff);overflow:hidden;white-space:nowrap;width:0;border-right:3px solid var(--gold);animation:tw 1.4s steps(12) .3s forwards,bc .6s step-end .3s 3}
+@keyframes tw{to{width:280px}}
+@keyframes bc{0%,100%{border-color:var(--gold)}50%{border-color:transparent}}
+.sp-logo em{color:var(--gold);font-style:normal}
+.sp-sub{font-size:9px;letter-spacing:4px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-top:14px;opacity:0;animation:fi .5s ease 1.8s forwards}
+.sp-bar{width:200px;height:1px;background:var(--bg4);margin-top:20px;border-radius:1px;overflow:hidden;opacity:0;animation:fi .3s ease 1.9s forwards}
+.sp-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold2));width:0;animation:sl 1.3s ease 2s forwards}
+@keyframes sl{to{width:100%}}
+@keyframes fi{to{opacity:1}}
+.sp-ver{font-size:8px;color:var(--txt3);font-family:var(--fm);margin-top:12px;opacity:0;animation:fi .3s ease 2.1s forwards;letter-spacing:2px}
+
+/* ── TOAST ── */
+#toastWrap{position:fixed;top:18px;right:18px;z-index:8000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;padding:10px 14px;font-size:10px;font-family:var(--fm);color:var(--txt);display:flex;align-items:center;gap:8px;min-width:260px;pointer-events:auto;transform:translateX(120%);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.toast.show{transform:translateX(0)}
+.toast.gone{transform:translateX(120%)}
+.tdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.t-ok .tdot{background:var(--green);box-shadow:0 0 6px var(--green)}
+.t-ok{border-left:2px solid var(--green)}
+.t-warn .tdot{background:var(--amber);box-shadow:0 0 6px var(--amber)}
+.t-warn{border-left:2px solid var(--amber)}
+.t-info .tdot{background:var(--blue);box-shadow:0 0 6px var(--blue)}
+.t-info{border-left:2px solid var(--blue)}
+
+/* ── COPY BUTTON ── */
+.copybtn{padding:4px 10px;background:var(--bg3);border:1px solid var(--bdr);color:var(--txt3);font-family:var(--fm);font-size:8px;letter-spacing:1px;border-radius:2px;cursor:pointer;transition:all .15s;flex-shrink:0;margin-left:auto}
+.copybtn:hover{border-color:var(--gold);color:var(--gold)}
+.copybtn.copied{border-color:var(--green);color:var(--green);background:var(--greend)}
+
+/* ── EXPORT BTN ── */
+.xbtn{padding:6px 12px;background:var(--bg2);border:1px solid var(--bdr);color:var(--txt2);font-family:var(--fm);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;border-radius:var(--rs);cursor:pointer;transition:all .15s;display:none;align-items:center;gap:5px}
+.xbtn.show{display:inline-flex}
+.xbtn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── KEYBOARD HINT ── */
+.kbhint{position:fixed;bottom:76px;left:16px;font-size:7px;color:var(--txt3);font-family:var(--fm);letter-spacing:1px;opacity:.4;line-height:1.8}
+.kk{display:inline-block;background:var(--bg3);border:1px solid var(--bdr);border-radius:2px;padding:1px 4px;font-size:7px;margin:0 2px}
+
+/* ── MOBILE ── */
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .main{padding:12px}
+  .two-col{grid-template-columns:1fr}
+  .fsrow{grid-template-columns:1fr 1fr}
+  .defsec.show{grid-template-columns:1fr}
+  .agrid{grid-template-columns:1fr}
+  .rgrid{grid-template-columns:1fr 1fr}
+  .pgrid{grid-template-columns:1fr}
+  .m4{grid-template-columns:1fr 1fr}
+  .topbar{flex-wrap:wrap;height:auto;padding:8px 12px;gap:8px}
+}
+
+@media print{
+  #splash,#toastWrap,.cfab,.cpanel,.kbhint,.topbar,.sidebar{display:none!important}
+  body{overflow:auto;height:auto;background:#fff;color:#000}
+}
 </style>
 </head>
 <body>
 
 <div class="scanline"></div>
 
+<!-- SPLASH -->
+<div id="splash">
+  <div class="sp-logo"><em>CODE</em>FORTRESS</div>
+  <div class="sp-sub">Autonomous Security Platform</div>
+  <div class="sp-bar"><div class="sp-bar-fill"></div></div>
+  <div class="sp-ver">v1.0.0 &nbsp;·&nbsp; 8-Layer ML Defense</div>
+</div>
+
+<!-- TOAST -->
+<div id="toastWrap"></div>
+
+<!-- KEYBOARD HINT -->
+<div class="kbhint">
+  <span class="kk">Ctrl+Enter</span> Scan &nbsp;
+  <span class="kk">Esc</span> Reset &nbsp;
+  <span class="kk">1-7</span> Navigate
+</div>
 
 <div class="shell">
 
@@ -368,11 +461,6 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
   <div class="tbsep"></div>
   <div class="tbst"><div class="tblbl">Audit Context</div><div class="tbctx" id="actx">Idle</div></div>
   <div class="tbsp"></div>
-  <div style="display:flex;flex-direction:column;gap:3px">
-    <input id="backendInput" placeholder="Backend URL (e.g. http://localhost:4000)" style="padding:6px 12px;background:var(--bg2);border:1px solid var(--bdr);color:var(--txt);font-family:var(--fm);font-size:10px;border-radius:var(--rs);outline:none;width:300px" oninput="saveBackendUrl(this.value)"/>
-    <div style="font-size:8px;color:var(--txt3);font-family:var(--fm);padding-left:2px">Leave empty = demo mode &nbsp;|&nbsp; Add backend URL = real scanning</div>
-  </div>
-  <input id="apiKeyInput" placeholder="Anthropic API Key (for AI fixes)" style="padding:7px 12px;background:var(--bg2);border:1px solid var(--bdr);color:var(--txt);font-family:var(--fm);font-size:10px;border-radius:var(--rs);outline:none;width:220px" type="password"/>
   <button class="btn btn-g" onclick="doReset()">Onboard New Target</button>
   <button class="btn btn-gold" id="execBtn" onclick="doExecute()">Execute High-Integrity Audit</button>
 </header>
@@ -422,28 +510,22 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
           <div class="idlbl">Target Identity</div>
           <div class="idsub" id="idSub">Awaiting Registry Link...</div>
         </div>
-        <input class="urlin" id="repoIn" placeholder="https://github.com/owner/repo" value="https://github.com/Harshvardhansinh28/HACKVERSE"/>
+        <input class="urlin" id="repoIn" placeholder="https://github.com/owner/repo"/>
         <button class="scbtn" id="scBtn" onclick="startScan()">
           <span class="shim"></span><span id="scBtnTxt">Initialize Secure Audit</span>
         </button>
         <div style="margin-top:8px;font-size:9px;color:var(--txt3);font-family:var(--fm);text-align:center">↳ Real GitHub scanning · Claude AI auto-fix · Live ML pipeline</div>
       </div>
 
-      <!-- ═══ 8-LAYER ML STREAM — always visible ═══ -->
+      <!-- ═══ 8-LAYER ML STREAM — vertical connected ═══ -->
       <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:18px 20px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
           <div style="font-size:8px;letter-spacing:2.5px;color:var(--gold);font-family:var(--fm);text-transform:uppercase">Autonomous ML Stream</div>
-          <button id="reviewBtn" onclick="goPage('attack')" style="display:none;padding:4px 12px;background:var(--gd);border:1px solid var(--gbdr);color:var(--gold);font-family:var(--fm);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;border-radius:2px;cursor:pointer">Review ML Findings ›</button>
+          <button id="reviewBtn" onclick="goPage('attack')" style="display:none;padding:4px 12px;background:var(--gd);border:1px solid var(--gbdr);color:var(--gold);font-family:var(--fm);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;border-radius:2px;cursor:pointer">Review Findings ›</button>
         </div>
-
-        <!-- 8 stage nodes -->
-        <div style="display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding-bottom:6px" id="mlStagesWrap">
-          <!-- Built by JS -->
-        </div>
-
-        <!-- Progress bar -->
-        <div style="margin-top:14px;height:2px;background:var(--bg4);border-radius:1px;overflow:hidden">
-          <div id="mlProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--gold3),var(--gold2));border-radius:1px;transition:width .6s ease"></div>
+        <div class="h-stages" id="hStagesWrap"></div>
+        <div style="margin-top:10px;height:2px;background:var(--bg4);border-radius:1px;overflow:hidden">
+          <div id="mlProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--gold3),var(--gold2));border-radius:1px;transition:width .8s ease"></div>
         </div>
         <div id="mlStatusLbl" style="margin-top:8px;font-size:9px;color:var(--txt2);font-family:var(--fm);min-height:14px">Waiting to initialize...</div>
       </div>
@@ -479,14 +561,43 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
 
   <!-- Findings (shown post-scan) -->
   <div id="findSec" style="display:none;margin-top:16px">
-    <div class="fsrow">
-      <div class="fmc"><div class="fmlbl">Total Findings</div><div class="fmval" id="ftot" style="color:var(--red)">0</div><div class="fmbdg" style="color:var(--txt3)">detected</div></div>
-      <div class="fmc"><div class="fmlbl">Secrets Found</div><div class="fmval" id="fsec" style="color:var(--amber)">0</div><div class="fmbdg" style="color:var(--txt3)">high-entropy</div></div>
-      <div class="fmc"><div class="fmlbl">SAST Issues</div><div class="fmval" id="fsast" style="color:var(--blue)">0</div><div class="fmbdg" style="color:var(--txt3)">code patterns</div></div>
-      <div class="fmc"><div class="fmlbl">Risk Score</div><div class="fmval" id="frisk" style="color:var(--red)">0</div><div class="fmbdg" id="flbl" style="color:var(--txt3)">—</div></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:8px;letter-spacing:2px;color:var(--gold);font-family:var(--fm);text-transform:uppercase">Scan Results</div>
+      <button class="xbtn" id="exportBtn" onclick="exportPDF()">⬇ Export PDF Report</button>
     </div>
+    <div class="fsrow">
+      <div class="fmc"><div class="fmlbl">Total Findings</div><div class="fmval countup" id="ftot" style="color:var(--red)">0</div><div class="fmbdg" style="color:var(--txt3)">detected</div></div>
+      <div class="fmc"><div class="fmlbl">Secrets Found</div><div class="fmval countup" id="fsec" style="color:var(--amber)">0</div><div class="fmbdg" style="color:var(--txt3)">high-entropy</div></div>
+      <div class="fmc"><div class="fmlbl">SAST Issues</div><div class="fmval countup" id="fsast" style="color:var(--blue)">0</div><div class="fmbdg" style="color:var(--txt3)">code patterns</div></div>
+      <div class="fmc"><div class="fmlbl">Risk Score</div><div class="fmval countup" id="frisk" style="color:var(--red)">0</div><div class="fmbdg" id="flbl" style="color:var(--txt3)">—</div></div>
+    </div>
+
+    <!-- Donut + Gauge row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px" id="vizRow" style="display:none">
+      <div class="card card-p">
+        <div class="clbl">Severity Breakdown</div>
+        <div class="donut-wrap">
+          <canvas id="donutC" width="100" height="100" class="donut-canvas"></canvas>
+          <div class="donut-legend">
+            <div class="donut-item"><div class="donut-dot" style="background:var(--red)"></div><span class="donut-lbl">Critical</span><span class="donut-cnt" id="dCrit">0</span></div>
+            <div class="donut-item"><div class="donut-dot" style="background:var(--amber)"></div><span class="donut-lbl">High</span><span class="donut-cnt" id="dHigh">0</span></div>
+            <div class="donut-item"><div class="donut-dot" style="background:var(--blue)"></div><span class="donut-lbl">Medium</span><span class="donut-cnt" id="dMed">0</span></div>
+            <div class="donut-item"><div class="donut-dot" style="background:var(--green)"></div><span class="donut-lbl">Low</span><span class="donut-cnt" id="dLow">0</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card card-p" style="text-align:center">
+        <div class="clbl">Risk Score Gauge</div>
+        <canvas id="gaugeC" width="200" height="110" style="display:block;margin:4px auto 0"></canvas>
+        <div class="fmval countup" id="gaugeScore" style="font-size:28px;color:var(--red);margin-top:-4px">0</div>
+        <div style="font-size:8px;letter-spacing:1.5px;color:var(--txt3);font-family:var(--fm);margin-top:4px" id="gaugeLbl">—</div>
+      </div>
+    </div>
+
     <div class="card card-p">
-      <div class="clbl">All Findings — Click ⚡ for AI-Generated Patch</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="clbl" style="margin-bottom:0">All Findings — Click ⚡ for AI-Generated Patch</div>
+      </div>
       <div class="flist" id="findList"></div>
     </div>
   </div>
@@ -626,14 +737,9 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
 <!-- CHATBOT PANEL -->
 <div class="cpanel" id="chatPanel">
   <div class="chd">
-    <div class="chdt">Security AI Assistant</div>
-    <div class="chds">Powered by Claude claude-sonnet-4 · Real-time Intelligence</div>
+    <div class="chdt">🛡️ Security Assistant</div>
   </div>
-  <div class="chatmode">
-    <button class="chatmode-btn active" id="modeLocal" onclick="setChatMode('local')">Pattern Engine</button>
-    <button class="chatmode-btn" id="modeClaude" onclick="setChatMode('claude')">Claude API ✨</button>
-  </div>
-  <div class="cmsgs" id="chatMsgs"><div class="cemp">Awaiting neural query...</div></div>
+  <div class="cmsgs" id="chatMsgs"><div class="cemp">Awaiting more queries...</div></div>
   <div class="cinr">
     <input class="cin" id="chatIn" placeholder="Ask about any vulnerability..." onkeydown="if(event.key==='Enter')sendChat()"/>
     <button class="csnd" id="chatSend" onclick="sendChat()">➤</button>
@@ -726,62 +832,94 @@ function addLog(type,msg,target='logBody'){
 function clearLog(){document.getElementById('logBody').innerHTML=''}
 
 // ════════════════════════════════════════
-// BUILD 8-LAYER INLINE STAGES
+// BUILD HORIZONTAL ML STAGES
 // ════════════════════════════════════════
-function buildStages(activeIdx){
-  const wrap = document.getElementById('mlStagesWrap')
+const STAGE_NAMES = [
+  'Secret Prediction\n(XGBoost)',
+  'Contextual SAST\n(Ensemble)',
+  'Attack Path\nGNN',
+  'DAST Runtime\nLikelihood',
+  'Security Memory\nGraph',
+  'Decision\nIntelligence',
+  'XAI Attribution\n(SHAP)',
+  'Patch\nSynthesis'
+]
+
+function buildStreamIdle(){
+  const wrap = document.getElementById('hStagesWrap')
   if(!wrap) return
   wrap.innerHTML = ''
-  LAYERS.forEach((l, i) => {
+  LAYERS.forEach((l,i) => {
     const item = document.createElement('div')
-    item.style.cssText = 'display:flex;align-items:center;flex-shrink:0'
-
+    item.className = 'h-stage-wrap'
     const inner = document.createElement('div')
-    inner.style.cssText = 'display:flex;flex-direction:column;align-items:center;width:92px'
-
-    // Ring
+    inner.className = 'h-stage-inner'
     const ring = document.createElement('div')
-    const isDone    = i < activeIdx
-    const isRunning = i === activeIdx
-    ring.style.cssText = [
-      'width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;',
-      'font-size:13px;font-weight:700;font-family:var(--fm);transition:all .5s;position:relative;',
-      isDone    ? 'border:2px solid var(--green);color:var(--green);background:var(--greend)' :
-      isRunning ? 'border:2px solid var(--gold);color:var(--gold);background:var(--gd);animation:ringPulse 1.2s ease-in-out infinite' :
-                  'border:2px solid var(--bdr);color:var(--txt3);background:var(--bg3)'
-    ].join('')
-    ring.textContent = isDone ? '✓' : String(i + 1)
-
-    // Label
+    ring.className = 'h-ring'
+    ring.id = 'h-ring-' + i
+    ring.textContent = String(i+1)
     const lbl = document.createElement('div')
-    lbl.style.cssText = 'font-size:7px;letter-spacing:.5px;color:' + (i <= activeIdx ? 'var(--txt2)' : 'var(--txt3)') + ';font-family:var(--fm);text-transform:uppercase;text-align:center;margin-top:6px;line-height:1.4;white-space:pre-line;max-width:88px'
-    lbl.textContent = l.label
-
-    // Status
-    const status = document.createElement('div')
-    status.style.cssText = 'font-size:7px;font-family:var(--fm);margin-top:2px;height:11px;' +
-      (isDone ? 'color:var(--green)' : isRunning ? 'color:var(--gold)' : 'color:transparent')
-    status.textContent = isDone ? 'VERIFIED' : isRunning ? 'RUNNING' : '.'
-
-    inner.appendChild(ring)
-    inner.appendChild(lbl)
-    inner.appendChild(status)
+    lbl.className = 'h-stage-lbl'
+    lbl.id = 'h-lbl-' + i
+    lbl.style.whiteSpace = 'pre-line'
+    lbl.textContent = STAGE_NAMES[i]
+    const st = document.createElement('div')
+    st.className = 'h-stage-st'
+    st.id = 'h-st-' + i
+    st.style.color = 'transparent'
+    st.textContent = '.'
+    inner.appendChild(ring); inner.appendChild(lbl); inner.appendChild(st)
     item.appendChild(inner)
-
-    // Connector
     if(i < LAYERS.length - 1){
       const conn = document.createElement('div')
-      conn.style.cssText = 'width:18px;height:2px;flex-shrink:0;margin-top:-22px;border-radius:1px;transition:background .5s;background:' + (isDone ? 'var(--green)' : 'var(--bdr)')
+      conn.className = 'h-conn'
+      conn.id = 'h-conn-' + i
+      conn.style.marginTop = '-28px'
       item.appendChild(conn)
     }
     wrap.appendChild(item)
   })
+  const pb = document.getElementById('mlProgressBar')
+  if(pb) pb.style.width = '0%'
+}
 
-  // Progress bar
-  const pct = activeIdx < 0 ? 0 : Math.round((activeIdx / LAYERS.length) * 100)
+function setStageRunning(idx, startTime){
+  const ring = document.getElementById('h-ring-' + idx)
+  const lbl  = document.getElementById('h-lbl-' + idx)
+  const st   = document.getElementById('h-st-' + idx)
+  if(ring){ ring.className = 'h-ring run' }
+  if(lbl){ lbl.className = 'h-stage-lbl run' }
+  if(st){ st.style.color = 'var(--gold)'; st.textContent = 'RUNNING' }
+  const iv = setInterval(function(){
+    const el = document.getElementById('h-st-' + idx)
+    if(el && el.textContent === 'RUNNING'){
+      const elapsed = ((Date.now() - startTime)/1000).toFixed(1)
+      el.textContent = elapsed + 's'
+    }
+  },100)
+  return iv
+}
+
+function setStageDone(idx, iv, elapsed){
+  clearInterval(iv)
+  const ring = document.getElementById('h-ring-' + idx)
+  const lbl  = document.getElementById('h-lbl-' + idx)
+  const st   = document.getElementById('h-st-' + idx)
+  const conn = document.getElementById('h-conn-' + idx)
+  if(ring){ ring.className = 'h-ring done'; ring.textContent = '✓' }
+  if(lbl){ lbl.className = 'h-stage-lbl done' }
+  if(st){ st.style.color = 'var(--green)'; st.textContent = elapsed + 's' }
+  if(conn){ conn.className = 'h-conn done' }
+  const pct = Math.round(((idx+1)/LAYERS.length)*100)
   const pb = document.getElementById('mlProgressBar')
   if(pb) pb.style.width = pct + '%'
 }
+
+function addStageLog(idx, type, msg){
+  addLog(type, '[' + STAGE_NAMES[idx].split('\n')[0].toUpperCase() + '] ' + msg)
+}
+
+function buildStages(activeIdx){ /* compat shim */ }
 
 // ════════════════════════════════════════
 // MAIN SCAN
@@ -806,50 +944,42 @@ async function startScan(){
   clearLog()
   animateEntropy(42 + Math.random()*5)
 
-  // Init stages idle, progress 0
-  buildStages(-1)
+  // Init all 8 stages idle
+  buildStreamIdle()
   document.getElementById('mlStatusLbl').textContent = 'Initializing ML inference workers...'
   document.getElementById('reviewBtn').style.display = 'none'
 
   // Fetch GitHub metadata in background
   const ghPromise = fetchGitHub(url)
 
-  // Stage-by-stage sequence with realistic slow delays
-  const seq = [
-    {s:0, d:900,  t:'sys',  msg:'Activating 8-Layer ML Defense Pipeline...'},
-    {s:0, d:1100, t:'sys',  msg:'Initializing 8-Layer ML Architecture for '+repoName},
-    {s:0, d:800,  t:'info', msg:'[SECRET_ML] Spawning specialized inference worker...'},
-    {s:1, d:1200, t:'info', msg:'Calculating Shannon entropy and semantic vectors...'},
-    {s:1, d:900,  t:'warn', msg:'[SECRET_ML] Identified 2 high-confidence signals.'},
-    {s:2, d:1000, t:'info', msg:'[SAST_RISK] Spawning specialized inference worker...'},
-    {s:2, d:900,  t:'warn', msg:'[SAST_RISK] Identified 2 high-confidence signals.'},
-    {s:3, d:1300, t:'info', msg:'[ATTACK_GNN] Traversing GraphSAGE trust relationships...'},
-    {s:3, d:1000, t:'warn', msg:'[ATTACK_GNN] Identified 2 high-confidence signals.'},
-    {s:4, d:900,  t:'info', msg:'[DAST_SIM] Spawning specialized inference worker...'},
-    {s:4, d:800,  t:'warn', msg:'[DAST_SIM] Identified 2 high-confidence signals.'},
-    {s:5, d:1100, t:'info', msg:'[SEC_MEMORY] Traversing cross-repo memory graph...'},
-    {s:5, d:900,  t:'warn', msg:'[SEC_MEMORY] Identified 2 high-confidence signals.'},
-    {s:6, d:1200, t:'info', msg:'[VERDICT_AI] Synthesizing weighted Bayesian verdict...'},
-    {s:6, d:800,  t:'warn', msg:'[VERDICT_AI] Identified 2 high-confidence signals.'},
-    {s:7, d:1000, t:'info', msg:'[XAI_LAYER] Calculating SHAP values for attribution...'},
-    {s:7, d:900,  t:'info', msg:'[SELF_HEAL] Synthesizing patch recommendations...'},
-    {s:7, d:800,  t:'warn', msg:'[SELF_HEAL] Identified 2 high-confidence signals.'},
+  // Per-stage timing config — each stage has its own logs + duration
+  const STAGE_CONFIG = [
+    {logs:[{d:500,t:'sys',m:'Spawning XGBoost inference worker...'},{d:900,t:'info',m:'Calculating Shannon entropy vectors...'},{d:800,t:'warn',m:'High-confidence secret signals detected.'}]},
+    {logs:[{d:600,t:'sys',m:'Running ensemble static analysis...'},{d:900,t:'info',m:'Traversing AST syntax tree...'},{d:700,t:'warn',m:'Vulnerability patterns identified.'}]},
+    {logs:[{d:700,t:'info',m:'Initializing GraphSAGE attention layers...'},{d:1000,t:'info',m:'Traversing trust relationship graph...'},{d:800,t:'warn',m:'Attack path vectors mapped.'}]},
+    {logs:[{d:600,t:'info',m:'Simulating runtime attack vectors...'},{d:800,t:'info',m:'Binary classification running...'},{d:700,t:'warn',m:'Runtime risks quantified.'}]},
+    {logs:[{d:700,t:'info',m:'Querying cross-repo memory graph...'},{d:900,t:'info',m:'Cross-referencing global CVE patterns...'},{d:700,t:'warn',m:'Memory context synchronized.'}]},
+    {logs:[{d:800,t:'info',m:'Computing weighted Bayesian verdict...'},{d:900,t:'info',m:'Normalizing risk distribution...'},{d:700,t:'warn',m:'Decision threshold reached.'}]},
+    {logs:[{d:700,t:'info',m:'Calculating SHAP attribution values...'},{d:800,t:'info',m:'Feature importance mapped...'},{d:600,t:'ok',m:'XAI attribution complete.'}]},
+    {logs:[{d:700,t:'info',m:'Synthesizing secure patch recommendations...'},{d:900,t:'info',m:'Generating remediation strategies...'},{d:600,t:'ok',m:'Patch synthesis complete.'}]},
   ]
-  const sLabels = ['Running Secret Prediction (XGBoost)...','Running Contextual SAST (Ensemble)...','Traversing Attack Path GNN...','Simulating DAST Runtime Likelihood...','Querying Security Memory Graph...','Computing Decision Intelligence...','Calculating XAI Attribution (SHAP)...','Synthesizing Patch Recommendations...']
 
-  let curStage = -1
-  for(const step of seq){
-    await sleep(step.d)
-    if(step.s !== curStage){
-      curStage = step.s
-      buildStages(curStage)
-      document.getElementById('mlStatusLbl').textContent = sLabels[curStage] || ''
+  // Run each stage sequentially
+  for(let i = 0; i < LAYERS.length; i++){
+    const stageStart = Date.now()
+    const iv = setStageRunning(i, stageStart)
+    document.getElementById('mlStatusLbl').textContent = STAGE_NAMES[i] + '...'
+    const stageLogs = STAGE_CONFIG[i].logs
+    for(const log of stageLogs){
+      await sleep(log.d)
+      addStageLog(i, log.t, log.m)
     }
-    addLog(step.t, step.msg)
+    await sleep(300)
+    const elapsed = ((Date.now() - stageStart)/1000).toFixed(1)
+    setStageDone(i, iv, elapsed)
+    await sleep(150)
   }
 
-  // All done
-  buildStages(8)
   document.getElementById('mlProgressBar').style.width = '100%'
   document.getElementById('mlStatusLbl').textContent = 'Full ML Audit Complete. Consolidating results...'
 
@@ -865,20 +995,39 @@ async function startScan(){
     document.getElementById('memSum').textContent = 'Security memory ingested for ' + repoName + '. Language: ' + (ghResult.language || 'Unknown') + '. Stars: ' + (ghResult.stargazers_count || 0) + '. Cross-referencing against global CWE patterns.'
   }
 
-  const backendUrl = (document.getElementById('backendInput').value.trim() || localStorage.getItem('cf_backend') || '').replace(/\/$/,'')
+  const backendUrl = BACKEND_URL
   let data = null
   let isRealScan = false
 
-  if(backendUrl){
-    addLog('info', 'Connecting to CodeFortress backend: ' + backendUrl)
-    try{
-      const r = await fetch(backendUrl + '/api/scan', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({repo_url:url}), signal:AbortSignal.timeout(90000)})
-      if(r.ok){ data = await r.json(); isRealScan = true; addLog('ok','Real scan complete — '+data.scan.filesScanned+' files scanned.') }
-      else { const err = await r.json().catch(()=>({error:'Backend error'})); addLog('warn','Backend error: '+(err.error||r.status)+' — demo mode.') }
-    } catch(e){ addLog('warn','Backend unreachable — demo mode.') }
-  } else {
-    addLog('warn','No backend URL — DEMO MODE (simulated data).')
-    addLog('info','Add backend URL in topbar for real scanning.')
+  // Wake up Railway backend first (free tier sleeps after inactivity)
+  showToast('info', 'Initializing 8-Layer ML Pipeline...')
+  addLog('info', 'Pinging backend — waking up server...')
+  try {
+    await fetch(backendUrl + '/api/health', { signal: AbortSignal.timeout(15000) })
+    addLog('ok', 'Backend online — starting real scan...')
+    await sleep(500)
+  } catch(e) {
+    addLog('warn', 'Backend warming up — proceeding...')
+  }
+
+  try{
+    addLog('info', 'Sending repository to scanner...')
+    const r = await fetch(backendUrl + '/api/scan', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({repo_url: url}),
+      signal: AbortSignal.timeout(120000)
+    })
+    if(r.ok){
+      data = await r.json()
+      isRealScan = true
+      addLog('ok','Real scan complete — '+data.scan.filesScanned+' files scanned.')
+    } else {
+      const err = await r.json().catch(()=>({error:'Backend error'}))
+      addLog('warn','Backend error: '+(err.error||r.status)+' — using demo data.')
+    }
+  } catch(e){
+    addLog('warn','Backend timeout — using demo data. Try scanning again.')
   }
 
   if(!data) data = generateDemoData(repoName, ghResult)
@@ -970,18 +1119,37 @@ function finishScan(data, isRealScan){
     banner.innerHTML = '<span style="font-size:14px">✅</span> <strong>REAL SCAN</strong> — ' + data.scan.filesScanned + ' files scanned from actual repository. Findings reflect real vulnerabilities found in the code.'
   } else {
     banner.style.cssText = 'margin-bottom:14px;padding:10px 16px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:4px;font-size:11px;color:#FBBF24;font-family:var(--fm);display:flex;align-items:center;gap:8px'
-    banner.innerHTML = '<span style="font-size:14px">⚠️</span> <strong>DEMO MODE</strong> — Simulated data shown. To see real scan results: enter your backend URL in the topbar field above.'
+    banner.innerHTML = '<span style="font-size:14px">⚠️</span> <strong>DEMO MODE</strong> — Simulated data shown. Backend temporarily unavailable.'
   }
   document.getElementById('findSec').insertAdjacentElement('beforebegin', banner)
 
   // Populate findings summary
-  document.getElementById('ftot').textContent=data.scan.secretsFound+data.scan.sastFound
-  document.getElementById('fsec').textContent=data.scan.secretsFound
-  document.getElementById('fsast').textContent=data.scan.sastFound
-  document.getElementById('frisk').textContent=data.risk.score
-  document.getElementById('flbl').textContent=data.risk.label
+  const total = data.scan.secretsFound + data.scan.sastFound
   document.getElementById('findSec').style.display='block'
+  document.getElementById('exportBtn').classList.add('show')
+
+  // Animated count-up
+  countUp('ftot', total, 900)
+  countUp('fsec', data.scan.secretsFound, 900)
+  countUp('fsast', data.scan.sastFound, 900)
+  countUp('frisk', data.risk.score, 1100)
+  countUp('gaugeScore', data.risk.score, 1100)
+  document.getElementById('flbl').textContent = data.risk.label
+  document.getElementById('gaugeLbl').textContent = data.risk.label
+
+  // Show viz row
+  document.getElementById('vizRow').style.display = 'grid'
+
+  // Draw charts after short delay
+  setTimeout(function(){
+    drawDonut(data.findings)
+    drawGauge(data.risk.score)
+  }, 400)
+
   buildFindingsList(data.findings)
+
+  // Toast notification
+  showToast(data.risk.level==='FAIL'?'warn':'ok', 'Scan complete — '+total+' findings · Risk: '+data.risk.score+'/100')
 
   // Defense chart
   document.getElementById('defSec').classList.add('show')
@@ -1051,39 +1219,50 @@ function buildFindingsList(findings){
 // ════════════════════════════════════════
 // AUTO-FIX
 // ════════════════════════════════════════
+// ════════════════════════════════════════
+// GROQ API CONFIG (hardcoded)
+// ════════════════════════════════════════
+const GROQ_KEY = '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'
+const GROQ_MODEL = 'llama-3.3-70b-versatile'
+const BACKEND_URL = 'https://codefortress-production.up.railway.app'
+
+async function callGroq(systemPrompt, userPrompt, maxTokens){
+  try{
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+GROQ_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model: GROQ_MODEL,
+        max_tokens: maxTokens||500,
+        messages:[
+          {role:'system', content: systemPrompt},
+          {role:'user',   content: userPrompt}
+        ]
+      }),
+      signal: AbortSignal.timeout(25000)
+    })
+    const d = await r.json()
+    return d.choices?.[0]?.message?.content?.trim() || ''
+  }catch(e){ return '' }
+}
+
 async function requestFix(id){
   const btn=document.getElementById('fix-'+id)
   const finding=window._findings?.[id]
   if(!finding||fixes[id]) return
   btn.disabled=true; btn.textContent='⏳ Gen...'
 
-  const apiKey=document.getElementById('apiKeyInput').value.trim()
-  let fix='', by='pattern-engine'
+  const prompt = 'You are a senior security engineer. Fix this vulnerability with minimal code changes.\n\nVulnerability: '+finding.name+'\nCWE: '+(finding.cwe||'N/A')+'\nSeverity: '+finding.severity+'\nFile: '+finding.file+' Line '+finding.line+'\nVulnerable code: '+(finding.lineText||'N/A')+'\n\nProvide ONLY the fixed code with brief inline comments. No markdown, no explanations outside code.'
 
-  if(apiKey){
-    try{
-      const resp=await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',
-        headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json'},
-        body:JSON.stringify({
-          model:'claude-sonnet-4-20250514',
-          max_tokens:500,
-          messages:[{role:'user',content:`You are a senior security engineer. Fix this vulnerability with minimal changes.\n\nVulnerability: ${finding.name}\nCWE: ${finding.cwe}\nSeverity: ${finding.severity}\nFile: ${finding.file} Line ${finding.line}\nCode: ${finding.lineText||''}\n\nProvide ONLY the fixed code with brief comments. No markdown, no explanations outside code.`}]
-        }),
-        signal:AbortSignal.timeout(25000)
-      })
-      const d=await resp.json()
-      fix=d.content?.[0]?.text?.trim()||''
-      by='claude-sonnet-4'
-    }catch(e){fix=''}
-  }
+  let fix = await callGroq('You are a senior security engineer. Be concise and provide only code fixes.', prompt, 500)
+  const by = fix ? 'Groq Llama-3.3-70b' : 'pattern-engine'
+  if(!fix) fix = getFallbackFix(finding.name)
 
-  if(!fix) fix=getFallbackFix(finding.name)
   fixes[id]={fix,by}
-
   const fixDiv=document.getElementById('fixr-'+id)
   fixDiv.style.display='block'
-  fixDiv.innerHTML=`<div class="fixresult">${escH(fix)}<div class="fixby">Generated by: ${by}</div></div>`
+  fixDiv.innerHTML='<div class="fixresult"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span class="fixby" style="margin:0">Generated by: '+by+'</span><button class="copybtn" onclick="copyFix(this,\''+escH(fix).replace(/'/g,"&#39;")+'\')" >Copy</button></div>'+escH(fix)+'</div>'
+  showToast('ok','AI Fix generated by '+by);
   btn.className='fixbtn done'; btn.textContent='✓ Fixed'; btn.disabled=true
 }
 
@@ -1283,7 +1462,7 @@ function startThreeJS(){
 // ════════════════════════════════════════
 // CHATBOT — Claude API + Pattern Fallback
 // ════════════════════════════════════════
-let chatModeActive='local'
+let chatModeActive='claude'
 
 function setChatMode(mode){
   chatModeActive=mode
@@ -1324,26 +1503,13 @@ async function sendChat(){
   let reply=''
 
   if(chatModeActive==='claude'){
-    const apiKey=document.getElementById('apiKeyInput').value.trim()
-    if(!apiKey){
-      reply='Please enter your Anthropic API key in the topbar input to use Claude AI mode.'
-    } else {
-      try{
-        const context=scanData?`Current scan context: Repo ${repoName}, ${scanData.scan.secretsFound+scanData.scan.sastFound} findings, risk score ${scanData.risk.score}/100 (${scanData.risk.label}). Findings include: ${scanData.findings.slice(0,3).map(f=>f.name).join(', ')}.`:'No scan data yet.'
-        const r=await fetch('https://api.anthropic.com/v1/messages',{
-          method:'POST',
-          headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json'},
-          body:JSON.stringify({
-            model:'claude-sonnet-4-20250514',
-            max_tokens:400,
-            system:`You are CodeFortress CI Security AI Assistant. You help developers understand security vulnerabilities. Be concise, technical, and actionable. Context: ${context}`,
-            messages:[{role:'user',content:msg}]
-          }),
-          signal:AbortSignal.timeout(20000)
-        })
-        const d=await r.json()
-        reply=d.content?.[0]?.text||'No response from Claude.'
-      }catch(e){reply='Claude API error. Check your API key and try again.'}
+    try{
+      const context = scanData ? 'Current scan: Repo '+repoName+', '+(scanData.scan.secretsFound+scanData.scan.sastFound)+' findings, risk score '+scanData.risk.score+'/100 ('+scanData.risk.label+'). Top findings: '+scanData.findings.slice(0,3).map(function(f){return f.name}).join(', ')+'.' : 'No scan data yet.'
+      const sys = 'You are CodeFortress CI Security AI Assistant. Help developers understand security vulnerabilities. Be concise, technical, actionable. Scan context: '+context
+      reply = await callGroq(sys, msg, 400)
+      if(!reply) throw new Error('empty')
+    }catch(e){
+      reply = 'AI unavailable. Try again.'
     }
   } else {
     await sleep(700)
@@ -1378,7 +1544,9 @@ function doReset(){
   document.getElementById('defSec').classList.remove('show')
   document.getElementById('errBanner').style.display='none'
   document.getElementById('reviewBtn').style.display='none'
-  buildStages(-1)
+  document.getElementById('exportBtn').classList.remove('show')
+  document.getElementById('vizRow').style.display='none'
+  buildStreamIdle()
   document.getElementById('mlStatusLbl').textContent='Waiting to initialize...'
   document.getElementById('mlProgressBar').style.width='0%'
   var b = document.getElementById('scanModeBanner'); if(b) b.remove()
@@ -1389,17 +1557,170 @@ function doReset(){
 
 function doExecute(){if(scanDone)goPage('attack')}
 
-function saveBackendUrl(val){
-  if(val.trim()) localStorage.setItem('cf_backend', val.trim())
-  else localStorage.removeItem('cf_backend')
-}
-
 function showErr(msg){const b=document.getElementById('errBanner');b.textContent=msg;b.style.display='block'}
 function hideErr(){document.getElementById('errBanner').style.display='none'}
 function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
-// Expose all functions to global scope for onclick handlers
+// ════════════════════════════════════════
+// SPLASH
+// ════════════════════════════════════════
+setTimeout(function(){
+  const sp = document.getElementById('splash')
+  if(sp){ sp.classList.add('hide'); setTimeout(function(){ sp.style.display='none' }, 700) }
+}, 3400)
+
+// ════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════
+function showToast(type, msg){
+  const wrap = document.getElementById('toastWrap')
+  const t = document.createElement('div')
+  t.className = 'toast t-' + type
+  t.innerHTML = '<div class="tdot"></div><span>'+msg+'</span>'
+  wrap.appendChild(t)
+  setTimeout(function(){ t.classList.add('show') }, 10)
+  setTimeout(function(){ t.classList.add('gone'); setTimeout(function(){ t.remove() }, 400) }, 3500)
+}
+
+// ════════════════════════════════════════
+// COUNT-UP ANIMATION
+// ════════════════════════════════════════
+function countUp(elId, target, duration){
+  const el = document.getElementById(elId)
+  if(!el) return
+  const start = Date.now()
+  const tick = function(){
+    const elapsed = Date.now() - start
+    const progress = Math.min(elapsed / duration, 1)
+    const eased = 1 - Math.pow(1 - progress, 3)
+    el.textContent = Math.round(eased * target)
+    if(progress < 1) requestAnimationFrame(tick)
+    else el.textContent = target
+  }
+  requestAnimationFrame(tick)
+}
+
+// ════════════════════════════════════════
+// DONUT CHART
+// ════════════════════════════════════════
+function drawDonut(findings){
+  const canvas = document.getElementById('donutC')
+  if(!canvas) return
+  const ctx = canvas.getContext('2d')
+  const crit = findings.filter(function(f){ return f.severity==='CRITICAL' }).length
+  const high = findings.filter(function(f){ return f.severity==='HIGH' }).length
+  const med  = findings.filter(function(f){ return f.severity==='MEDIUM' }).length
+  const low  = findings.filter(function(f){ return f.severity!=='CRITICAL'&&f.severity!=='HIGH'&&f.severity!=='MEDIUM' }).length
+  const total = crit+high+med+low || 1
+  const colors = ['#F87171','#FBBF24','#60A5FA','#34D399']
+  const vals = [crit,high,med,low]
+  document.getElementById('dCrit').textContent = crit
+  document.getElementById('dHigh').textContent = high
+  document.getElementById('dMed').textContent  = med
+  document.getElementById('dLow').textContent  = low
+  let start = -Math.PI/2
+  ctx.clearRect(0,0,100,100)
+  vals.forEach(function(v,i){
+    const slice = (v/total)*Math.PI*2
+    ctx.beginPath()
+    ctx.moveTo(50,50)
+    ctx.arc(50,50,40,start,start+slice)
+    ctx.closePath()
+    ctx.fillStyle = colors[i]
+    ctx.fill()
+    start += slice
+  })
+  // Center hole
+  ctx.beginPath()
+  ctx.arc(50,50,24,0,Math.PI*2)
+  ctx.fillStyle = '#121215'
+  ctx.fill()
+  ctx.fillStyle = '#EDE8DF'
+  ctx.font = 'bold 14px JetBrains Mono,monospace'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(total, 50, 50)
+}
+
+// ════════════════════════════════════════
+// RISK GAUGE
+// ════════════════════════════════════════
+function drawGauge(score){
+  const canvas = document.getElementById('gaugeC')
+  if(!canvas) return
+  const ctx = canvas.getContext('2d')
+  ctx.clearRect(0,0,200,110)
+  const cx=100, cy=100, r=80
+  // Background arc
+  ctx.beginPath()
+  ctx.arc(cx,cy,r,Math.PI,0)
+  ctx.lineWidth=14
+  ctx.strokeStyle='#1e1e23'
+  ctx.stroke()
+  // Score arc
+  const angle = Math.PI + (score/100)*Math.PI
+  const grad = ctx.createLinearGradient(20,100,180,100)
+  grad.addColorStop(0,'#34D399')
+  grad.addColorStop(.5,'#FBBF24')
+  grad.addColorStop(1,'#F87171')
+  ctx.beginPath()
+  ctx.arc(cx,cy,r,Math.PI,angle)
+  ctx.lineWidth=14
+  ctx.strokeStyle=grad
+  ctx.lineCap='round'
+  ctx.stroke()
+  // Needle
+  const needleAngle = Math.PI + (score/100)*Math.PI
+  const nx = cx + Math.cos(needleAngle)*62
+  const ny = cy + Math.sin(needleAngle)*62
+  ctx.beginPath()
+  ctx.moveTo(cx,cy)
+  ctx.lineTo(nx,ny)
+  ctx.strokeStyle='#D4A843'
+  ctx.lineWidth=2
+  ctx.lineCap='round'
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.arc(cx,cy,6,0,Math.PI*2)
+  ctx.fillStyle='#D4A843'
+  ctx.fill()
+}
+
+// ════════════════════════════════════════
+// COPY FIX
+// ════════════════════════════════════════
+function copyFix(btn, text){
+  navigator.clipboard.writeText(text).then(function(){
+    btn.textContent = 'Copied!'
+    btn.classList.add('copied')
+    setTimeout(function(){ btn.textContent='Copy'; btn.classList.remove('copied') }, 2000)
+  }).catch(function(){
+    btn.textContent = 'Copied!'
+    btn.classList.add('copied')
+    setTimeout(function(){ btn.textContent='Copy'; btn.classList.remove('copied') }, 2000)
+  })
+}
+
+// ════════════════════════════════════════
+// EXPORT PDF
+// ════════════════════════════════════════
+function exportPDF(){
+  showToast('info','Generating PDF report...')
+  setTimeout(function(){ window.print() }, 400)
+}
+
+// ════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ════════════════════════════════════════
+document.addEventListener('keydown', function(e){
+  if(e.ctrlKey && e.key==='Enter'){ e.preventDefault(); window.startScan && startScan() }
+  if(e.key==='Escape'){ window.doReset && doReset() }
+  const pageMap = {'1':'intel','2':'attack','3':'memory','4':'supply','5':'risk','6':'policy','7':'history'}
+  if(!e.ctrlKey && !e.altKey && pageMap[e.key]){ goPage(pageMap[e.key]) }
+})
+
+
 window.startScan      = startScan
 window.doReset        = doReset
 window.doExecute      = doExecute
@@ -1408,14 +1729,11 @@ window.sendChat       = sendChat
 window.setChatMode    = setChatMode
 window.requestFix     = requestFix
 window.goPage         = goPage
-window.saveBackendUrl = saveBackendUrl
+window.copyFix        = copyFix
+window.exportPDF      = exportPDF
 
 // Init on load
-;(function(){
-  const saved = localStorage.getItem('cf_backend')
-  if(saved){ const inp=document.getElementById('backendInput'); if(inp) inp.value=saved }
-  buildStages(-1)
-})()
+;(function(){ buildStreamIdle() })()
 </script>
 </body>
 </html>

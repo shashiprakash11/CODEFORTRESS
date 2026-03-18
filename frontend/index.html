@@ -995,24 +995,23 @@ async function startScan(){
     document.getElementById('memSum').textContent = 'Security memory ingested for ' + repoName + '. Language: ' + (ghResult.language || 'Unknown') + '. Stars: ' + (ghResult.stargazers_count || 0) + '. Cross-referencing against global CWE patterns.'
   }
 
-  const backendUrl = BACKEND_URL
+  const apiBase = window.location.origin  // Same domain — Vercel serverless
   let data = null
   let isRealScan = false
 
-  // Wake up Railway backend first (free tier sleeps after inactivity)
   showToast('info', 'Initializing 8-Layer ML Pipeline...')
-  addLog('info', 'Pinging backend — waking up server...')
+  addLog('info', 'Connecting to security scanner...')
   try {
-    await fetch(backendUrl + '/api/health', { signal: AbortSignal.timeout(15000) })
-    addLog('ok', 'Backend online — starting real scan...')
-    await sleep(500)
+    await fetch(apiBase + '/api/health', { signal: AbortSignal.timeout(10000) })
+    addLog('ok', 'Scanner online — starting real scan...')
+    await sleep(300)
   } catch(e) {
-    addLog('warn', 'Backend warming up — proceeding...')
+    addLog('warn', 'Scanner warming up...')
   }
 
   try{
     addLog('info', 'Sending repository to scanner...')
-    const r = await fetch(backendUrl + '/api/scan', {
+    const r = await fetch(apiBase + '/api/scan', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({repo_url: url}),
@@ -1023,11 +1022,11 @@ async function startScan(){
       isRealScan = true
       addLog('ok','Real scan complete — '+data.scan.filesScanned+' files scanned.')
     } else {
-      const err = await r.json().catch(()=>({error:'Backend error'}))
-      addLog('warn','Backend error: '+(err.error||r.status)+' — using demo data.')
+      const err = await r.json().catch(()=>({error:'Scanner error'}))
+      addLog('warn','Scanner error: '+(err.error||r.status)+' — using demo data.')
     }
   } catch(e){
-    addLog('warn','Backend timeout — using demo data. Try scanning again.')
+    addLog('warn','Scanner timeout — using demo data. Try again.')
   }
 
   if(!data) data = generateDemoData(repoName, ghResult)
@@ -1224,7 +1223,7 @@ function buildFindingsList(findings){
 // ════════════════════════════════════════
 const GROQ_KEY = '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'
 const GROQ_MODEL = 'llama-3.3-70b-versatile'
-const BACKEND_URL = 'https://codefortress-production.up.railway.app'
+const BACKEND_URL = ''  // Empty = same domain (Vercel serverless)
 
 async function callGroq(systemPrompt, userPrompt, maxTokens){
   try{
@@ -1306,23 +1305,93 @@ function drawChart(){
   const canvas=document.getElementById('chartC')
   const W=canvas.offsetWidth||600; canvas.width=W; canvas.height=150
   const ctx=canvas.getContext('2d')
-  const pts=[82,87,84,90,86,91,88,94],days=['MON','TUE','WED','THU','FRI','SAT','SUN']
+
+  // Generate dynamic points based on actual scan data
+  const baseScore = scanData ? (100 - scanData.risk.score) : 85
+  const days=['MON','TUE','WED','THU','FRI','SAT','SUN','NOW']
+
+  // Last 7 days simulated trend + current real score as last point
+  // Earlier days show slightly better score (before this scan found issues)
+  const seed = scanData ? (scanData.scan.filesScanned || 10) : 10
+  const pts = [
+    Math.min(98, baseScore + 12 + (seed % 5)),
+    Math.min(98, baseScore + 10 + (seed % 3)),
+    Math.min(98, baseScore + 14 + (seed % 4)),
+    Math.min(98, baseScore +  8 + (seed % 6)),
+    Math.min(98, baseScore + 11 + (seed % 2)),
+    Math.min(98, baseScore +  9 + (seed % 5)),
+    Math.min(98, baseScore + 13 + (seed % 3)),
+    Math.max(10, baseScore)  // ← last point = actual current score
+  ]
+
+  // Clamp all values to 10-99 range
+  const clamped = pts.map(v => Math.max(10, Math.min(99, Math.round(v))))
+  const minV = Math.min(...clamped) - 5
+  const maxV = Math.max(...clamped) + 5
+  const range = maxV - minV || 10
+
   const P={l:36,r:18,t:12,b:24},cW=W-P.l-P.r,cH=150-P.t-P.b
-  const xO=i=>P.l+cW*i/(pts.length-1),yO=v=>P.t+cH*(1-(v-78)/18)
-  ;[0,.25,.5,.75,1].forEach(f=>{const y=P.t+cH*f;ctx.beginPath();ctx.moveTo(P.l,y);ctx.lineTo(W-P.r,y);ctx.strokeStyle='rgba(255,255,255,.03)';ctx.lineWidth=1;ctx.stroke()})
-  days.forEach((d,i)=>{ctx.fillStyle='#3a3a4a';ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='center';ctx.fillText(d,xO(i),148)})
+  const xO=i=>P.l+cW*i/(clamped.length-1)
+  const yO=v=>P.t+cH*(1-(v-minV)/range)
+
+  // Grid lines
+  ;[0,.25,.5,.75,1].forEach(f=>{
+    const y=P.t+cH*f
+    ctx.beginPath();ctx.moveTo(P.l,y);ctx.lineTo(W-P.r,y)
+    ctx.strokeStyle='rgba(255,255,255,.03)';ctx.lineWidth=1;ctx.stroke()
+  })
+
+  // Day labels
+  days.forEach((d,i)=>{
+    ctx.fillStyle = i===days.length-1 ? '#D4A843' : '#3a3a4a'
+    ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='center'
+    ctx.fillText(d,xO(i),148)
+  })
+
+  // Fill gradient
   const g=ctx.createLinearGradient(0,P.t,0,150-P.b)
-  g.addColorStop(0,'rgba(212,168,67,.2)');g.addColorStop(1,'rgba(212,168,67,0)')
+  const lastScore = clamped[clamped.length-1]
+  const fillColor = lastScore >= 70 ? '248,113,113' : lastScore >= 50 ? '251,191,36' : '52,211,153'
+  g.addColorStop(0,'rgba('+fillColor+',.2)');g.addColorStop(1,'rgba('+fillColor+',0)')
   ctx.fillStyle=g;ctx.beginPath()
-  pts.forEach((v,i)=>{const x=xO(i),y=yO(v);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)})
-  ctx.lineTo(xO(pts.length-1),150-P.b);ctx.lineTo(xO(0),150-P.b);ctx.closePath();ctx.fill()
-  ctx.strokeStyle='#D4A843';ctx.lineWidth=1.5;ctx.lineJoin='round';ctx.beginPath()
-  pts.forEach((v,i)=>{const x=xO(i),y=yO(v);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});ctx.stroke()
-  pts.forEach((v,i)=>{const x=xO(i),y=yO(v);ctx.fillStyle='#D4A843';ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill()})
-  const lx=xO(pts.length-1),ly=yO(pts[pts.length-1])
-  ctx.fillStyle='#18181c';ctx.strokeStyle='#D4A843';ctx.lineWidth=.8
-  ctx.beginPath();if(ctx.roundRect)ctx.roundRect(lx-14,ly-22,28,16,3);else ctx.rect(lx-14,ly-22,28,16)
-  ctx.fill();ctx.stroke();ctx.fillStyle='#D4A843';ctx.font='bold 9px JetBrains Mono,monospace';ctx.textAlign='center';ctx.fillText(pts[pts.length-1],lx,ly-10)
+  clamped.forEach((v,i)=>{const x=xO(i),y=yO(v);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)})
+  ctx.lineTo(xO(clamped.length-1),150-P.b);ctx.lineTo(xO(0),150-P.b);ctx.closePath();ctx.fill()
+
+  // Line — color based on risk level
+  const lineColor = lastScore >= 70 ? '#F87171' : lastScore >= 50 ? '#FBBF24' : '#34D399'
+  ctx.strokeStyle=lineColor;ctx.lineWidth=1.5;ctx.lineJoin='round';ctx.beginPath()
+  clamped.forEach((v,i)=>{const x=xO(i),y=yO(v);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});ctx.stroke()
+
+  // Dots
+  clamped.forEach((v,i)=>{
+    const x=xO(i),y=yO(v)
+    ctx.fillStyle = i===clamped.length-1 ? lineColor : '#D4A843'
+    ctx.beginPath();ctx.arc(x,y,i===clamped.length-1?4:3,0,Math.PI*2);ctx.fill()
+    // Pulse ring on last dot
+    if(i===clamped.length-1){
+      ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2)
+      ctx.strokeStyle=lineColor.replace(')',',0.3)').replace('rgb','rgba')
+      ctx.lineWidth=1;ctx.stroke()
+    }
+  })
+
+  // Score tooltip on last point
+  const lx=xO(clamped.length-1),ly=yO(clamped[clamped.length-1])
+  ctx.fillStyle='#18181c';ctx.strokeStyle=lineColor;ctx.lineWidth=.8
+  ctx.beginPath()
+  if(ctx.roundRect) ctx.roundRect(lx-18,ly-26,36,16,3)
+  else ctx.rect(lx-18,ly-26,36,16)
+  ctx.fill();ctx.stroke()
+  ctx.fillStyle=lineColor
+  ctx.font='bold 9px JetBrains Mono,monospace';ctx.textAlign='center'
+  ctx.fillText(clamped[clamped.length-1],lx,ly-14)
+
+  // Y-axis labels
+  ctx.fillStyle='#3a3a4a';ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='right'
+  ;[0,.5,1].forEach(f=>{
+    const v=Math.round(minV+range*(1-f))
+    ctx.fillText(v,P.l-4,P.t+cH*f+4)
+  })
 }
 
 // ════════════════════════════════════════

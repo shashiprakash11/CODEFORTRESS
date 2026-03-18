@@ -63,6 +63,18 @@ app.listen(PORT, () => {
   console.log('📡  http://localhost:' + PORT);
   console.log('🤖  Claude API: ' + (process.env.ANTHROPIC_API_KEY ? '✅ Ready' : '❌ Not set'));
   console.log('🐙  GitHub:     ' + (process.env.GITHUB_TOKEN     ? '✅ Ready' : '⚠️  Not set (public repos only)') + '\n');
+
+  // Keep-alive ping every 14 minutes to prevent Railway free tier sleep
+  if(process.env.NODE_ENV === 'production') {
+    const http = require('http');
+    setInterval(() => {
+      try {
+        http.get('http://localhost:' + PORT + '/api/health', (res) => {
+          console.log('Keep-alive ping: ' + res.statusCode);
+        }).on('error', () => {});
+      } catch(e) {}
+    }, 14 * 60 * 1000);
+  }
 });
 
 module.exports = app;

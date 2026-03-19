@@ -78,7 +78,7 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
 .btn-gold.fired{background:var(--gold);color:#07070a;font-weight:700;box-shadow:0 0 20px rgba(212,168,67,.3)}
 
 /* ── MAIN ── */
-.main{overflow-y:auto;padding:24px 28px;background:var(--bg);position:relative}
+.main{overflow-y:auto;padding:24px 28px 50px;background:var(--bg);position:relative}
 .page{display:none}
 .page.active{display:block;animation:fadeUp .2s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
@@ -280,10 +280,10 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
 .vtb{padding:2px 8px;border-radius:2px;background:rgba(251,100,36,.07);color:#FB7048;border:1px solid rgba(251,100,36,.2);font-size:8px;letter-spacing:1px}
 
 /* ── CHATBOT ── */
-.cfab{position:fixed;bottom:22px;right:22px;width:48px;height:48px;border-radius:50%;background:var(--gold);border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(212,168,67,.4);z-index:200;cursor:pointer;transition:all .2s}
+.cfab{position:fixed;bottom:50px;right:22px;width:48px;height:48px;border-radius:50%;background:var(--gold);border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(212,168,67,.4);z-index:200;cursor:pointer;transition:all .2s}
 .cfab:hover{transform:scale(1.06);box-shadow:0 6px 28px rgba(212,168,67,.55)}
 .cfab svg{width:21px;height:21px;fill:#07070a}
-.cpanel{position:fixed;bottom:80px;right:22px;width:360px;background:var(--bg1);border:1px solid var(--gbdr);border-radius:10px;box-shadow:0 24px 60px rgba(0,0,0,.7);z-index:199;display:none;flex-direction:column;max-height:500px}
+.cpanel{position:fixed;bottom:108px;right:22px;width:360px;background:var(--bg1);border:1px solid var(--gbdr);border-radius:10px;box-shadow:0 24px 60px rgba(0,0,0,.7);z-index:199;display:none;flex-direction:column;max-height:500px}
 .cpanel.open{display:flex}
 .chd{padding:14px 16px;border-bottom:1px solid var(--bdr);background:var(--bg2);border-radius:10px 10px 0 0}
 .chdt{font-size:10px;letter-spacing:2px;color:var(--gold);font-family:var(--fm);text-transform:uppercase}
@@ -376,8 +376,42 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
 .xbtn.show{display:inline-flex}
 .xbtn:hover{border-color:var(--gold);color:var(--gold)}
 
-/* ── KEYBOARD HINT ── */
-.kbhint{position:fixed;bottom:76px;left:16px;font-size:7px;color:var(--txt3);font-family:var(--fm);letter-spacing:1px;opacity:.4;line-height:1.8}
+/* ── COPYRIGHT FOOTER ── */
+.cf-footer{
+  position:fixed;bottom:0;left:0;right:0;
+  height:32px;
+  background:linear-gradient(90deg,#07070a,#0d0d10,#07070a);
+  border-top:1px solid rgba(212,168,67,.12);
+  display:flex;align-items:center;justify-content:center;
+  gap:18px;z-index:100;
+  backdrop-filter:blur(8px);
+}
+.cf-footer-inner{
+  display:flex;align-items:center;gap:18px;
+  font-size:9px;font-family:var(--fm);
+  letter-spacing:1px;color:var(--txt3);
+}
+.cf-footer-brand{
+  color:var(--gold);font-weight:700;letter-spacing:2px;font-size:9px;
+}
+.cf-footer-sep{
+  width:1px;height:12px;background:rgba(255,255,255,.08);
+}
+.cf-footer-copy{
+  color:#454340;font-size:8px;letter-spacing:.8px;
+}
+.cf-footer-right{
+  color:#454340;font-size:8px;letter-spacing:.8px;
+}
+.cf-footer-dot{
+  width:3px;height:3px;border-radius:50%;
+  background:var(--gold);opacity:.4;
+}
+
+@media print{
+  .cf-footer{display:none!important}
+}
+.kbhint{position:fixed;bottom:40px;left:16px;font-size:7px;color:var(--txt3);font-family:var(--fm);letter-spacing:1px;opacity:.4;line-height:1.8}
 .kk{display:inline-block;background:var(--bg3);border:1px solid var(--bdr);border-radius:2px;padding:1px 4px;font-size:7px;margin:0 2px}
 
 /* ── MOBILE ── */
@@ -411,7 +445,7 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
   <div class="sp-sub">Autonomous Security Platform</div>
   <div class="sp-bar"><div class="sp-bar-fill"></div></div>
   <div class="sp-ver">v1.0.0 &nbsp;·&nbsp; 8-Layer ML Defense</div>
-  <div style="font-size:8px;color:#454340;font-family:'JetBrains Mono',monospace;margin-top:20px;letter-spacing:1px;opacity:0;animation:fi .3s ease 2.3s forwards">© 2026 Shashi Prakash · MIT License</div>
+
 </div>
 
 <!-- TOAST -->
@@ -422,7 +456,6 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
   <span class="kk">Ctrl+Enter</span> Scan &nbsp;
   <span class="kk">Esc</span> Reset &nbsp;
   <span class="kk">1-7</span> Navigate
-  <div style="margin-top:4px;opacity:.7">© 2026 Shashi Prakash · MIT License</div>
 </div>
 
 <div class="shell">
@@ -454,7 +487,6 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
     </div>
     <button class="rbtn" onclick="doReset()"><span>Onboard New Target</span><span>+</span></button>
     <div class="epill"><div class="edot"></div>Autonomous Engine Active</div>
-    <div style="margin-top:10px;font-size:7px;color:var(--txt3);font-family:var(--fm);letter-spacing:.5px;opacity:.5">© 2026 Shashi Prakash</div>
   </div>
 </aside>
 
@@ -891,7 +923,20 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
 </main>
 </div>
 
-<!-- CHATBOT FAB -->
+<!-- COPYRIGHT FOOTER -->
+<div class="cf-footer">
+  <div class="cf-footer-inner">
+    <span class="cf-footer-brand">🛡️ CODEFORTRESS CI</span>
+    <div class="cf-footer-sep"></div>
+    <span class="cf-footer-copy">© 2026 Shashi Prakash. All Rights Reserved.</span>
+    <div class="cf-footer-dot"></div>
+    <span class="cf-footer-right">Unauthorized reproduction or distribution is prohibited.</span>
+    <div class="cf-footer-sep"></div>
+    <span class="cf-footer-copy" style="color:rgba(212,168,67,.35)">v1.0.0</span>
+  </div>
+</div>
+
+
 <button class="cfab" onclick="toggleChat()">
   <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
 </button>

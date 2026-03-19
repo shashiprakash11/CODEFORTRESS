@@ -9,7 +9,6 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 [![Node](https://img.shields.io/badge/Node.js-18+-green?style=for-the-badge&logo=node.js)](https://nodejs.org)
 
-*Final Year Project — CS/IT | Real GitHub Scanning · Groq AI Auto-Fix · Three.js 3D*
 
 </div>
 

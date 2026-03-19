@@ -767,15 +767,20 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
 
 <!-- RISK PAGE -->
 <div class="page" id="page-risk">
-  <div class="ph"><div class="pht">Real-time <strong>Risk Concentration</strong></div><div class="phs">Target cluster inference analysis</div></div>
-  <div class="rgrid">
-    <div class="rcard"><div class="rkcl">Target Cluster</div><div class="rkn">INTERNAL</div><div class="rkp">4915<sup>%</sup></div><div class="rki">Inference</div><div class="rkbar"><div class="rkbf" style="width:95%"></div></div><div class="rkps"><div class="rkpl">MNC Posture</div><div class="ctag">Critical</div></div></div>
-    <div class="rcard"><div class="rkcl">Target Cluster</div><div class="rkn">SRC</div><div class="rkp">9390<sup>%</sup></div><div class="rki">Inference</div><div class="rkbar"><div class="rkbf" style="width:100%"></div></div><div class="rkps"><div class="rkpl">MNC Posture</div><div class="ctag">Critical</div></div></div>
-    <div class="rcard"><div class="rkcl">Target Cluster</div><div class="rkn">BACKEND</div><div class="rkp">6129<sup>%</sup></div><div class="rki">Inference</div><div class="rkbar"><div class="rkbf" style="width:85%"></div></div><div class="rkps"><div class="rkpl">MNC Posture</div><div class="ctag">Critical</div></div></div>
-    <div class="rcard"><div class="rkcl">Target Cluster</div><div class="rkn">CORE</div><div class="rkp">95<sup>%</sup></div><div class="rki">Inference</div><div class="rkbar"><div class="rkbf" style="width:60%"></div></div><div class="rkps"><div class="rkpl">MNC Posture</div><div class="ctag">Critical</div></div></div>
-    <div class="rcard"><div class="rkcl">Target Cluster</div><div class="rkn">SERVICES</div><div class="rkp">9450<sup>%</sup></div><div class="rki">Inference</div><div class="rkbar"><div class="rkbf" style="width:100%"></div></div><div class="rkps"><div class="rkpl">MNC Posture</div><div class="ctag">Critical</div></div></div>
-    <div class="rcard"><div class="rkcl">Target Cluster</div><div class="rkn">ML</div><div class="rkp">8820<sup>%</sup></div><div class="rki">Inference</div><div class="rkbar"><div class="rkbf" style="width:90%"></div></div><div class="rkps"><div class="rkpl">MNC Posture</div><div class="ctag">Critical</div></div></div>
+  <div class="ph phr">
+    <div><div class="pht">Real-time <strong>Risk Concentration</strong></div><div class="phs">Based on actual scan findings</div></div>
+    <div id="riskScanBadge" style="font-size:9px;color:var(--txt3);font-family:var(--fm)">Run a scan to see real risk data</div>
   </div>
+
+  <!-- No scan state -->
+  <div id="riskNoScan" style="text-align:center;padding:60px;color:var(--txt3)">
+    <div style="font-size:40px;margin-bottom:16px;opacity:.3">📊</div>
+    <div style="font-family:var(--fm);font-size:11px">No scan data available</div>
+    <div style="font-family:var(--fm);font-size:10px;margin-top:6px">Run a scan on Intelligence Space first</div>
+  </div>
+
+  <!-- Real data grid -->
+  <div class="rgrid" id="riskGrid" style="display:none"></div>
 </div>
 
 <!-- POLICY PAGE -->
@@ -783,21 +788,78 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
   <div class="ph"><div class="pht"><strong>Policy</strong> Center</div></div>
   <div class="pgrid">
     <div>
-      <div style="font-size:8px;letter-spacing:2.5px;color:var(--gold);font-family:var(--fm);text-transform:uppercase;margin-bottom:12px">Active Enforcement Engine</div>
-      <div class="pitem"><div><div class="pn">Autonomous Critical Blocking</div><div class="pd">Fails pipeline if riskScore &gt; 0.9</div></div><div class="ptgl on" onclick="this.classList.toggle('on')"></div></div>
-      <div class="pitem"><div><div class="pn">Predictive Patch Synthesis</div><div class="pd">Auto-generates remediation PRs</div></div><div class="ptgl on" onclick="this.classList.toggle('on')"></div></div>
-      <div class="pitem"><div><div class="pn">Entropy Enforcement</div><div class="pd">Restrict high-entropy secrets</div></div><div class="ptgl" onclick="this.classList.toggle('on')"></div></div>
-      <div class="pitem"><div><div class="pn">Graph-Based Trust Gating</div><div class="pd">Validates exploit path transit-safety</div></div><div class="ptgl on" onclick="this.classList.toggle('on')"></div></div>
-    </div>
-    <div>
-      <div class="card card-p" style="margin-bottom:13px">
-        <div class="clbl">Compliance Matrix</div>
-        <div class="crow"><div class="cn">SOC2 Type II</div><div class="cok">● Compliant</div></div>
-        <div class="crow"><div class="cn">HIPAA Security Rule</div><div class="cwn">● Verification Req.</div></div>
-        <div class="crow"><div class="cn">ISO 27001:2022</div><div class="cok">● Compliant</div></div>
-        <div class="crow"><div class="cn">FedRAMP High</div><div class="cpn">● Pending Audit</div></div>
+      <div style="font-size:8px;letter-spacing:2.5px;color:var(--gold);font-family:var(--fm);text-transform:uppercase;margin-bottom:12px">Security Rules</div>
+
+      <div class="pitem">
+        <div><div class="pn">Block Critical Findings</div><div class="pd" id="pol1Desc">Scan results with CRITICAL severity will trigger alert</div></div>
+        <div class="ptgl on" id="pol1Toggle" onclick="this.classList.toggle('on')"></div>
       </div>
-      <div class="gr"><div class="grt">⚡ Autonomous Guardrail</div><div class="grb">Decision Intelligence is currently operating in <em>Fail-Safe Mode</em>. Any finding with SHAP attribution &gt; 0.85 will trigger an automatic block.</div></div>
+      <div class="pitem">
+        <div><div class="pn">AI Auto-Fix Enabled</div><div class="pd">Groq Llama generates secure patches on ⚡ Fix click</div></div>
+        <div class="ptgl on" id="pol2Toggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="pitem">
+        <div><div class="pn">Entropy Secret Detection</div><div class="pd">Shannon entropy > 3.2 flags potential secrets</div></div>
+        <div class="ptgl on" id="pol3Toggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="pitem">
+        <div><div class="pn">SAST Pattern Matching</div><div class="pd">10 OWASP rules scan actual code files</div></div>
+        <div class="ptgl on" id="pol4Toggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+
+      <!-- Real scan policy summary -->
+      <div id="polScanSummary" style="display:none;margin-top:14px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rs);padding:14px">
+        <div style="font-size:8px;letter-spacing:2px;color:var(--gold);font-family:var(--fm);text-transform:uppercase;margin-bottom:10px">Last Scan Policy Result</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm)">
+            <span style="color:var(--txt3)">Total Findings</span>
+            <span id="polTotal" style="color:var(--txt);font-weight:700">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm)">
+            <span style="color:var(--txt3)">Critical Issues</span>
+            <span id="polCritical" style="color:var(--red);font-weight:700">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm)">
+            <span style="color:var(--txt3)">Secrets Detected</span>
+            <span id="polSecrets" style="color:var(--amber);font-weight:700">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm)">
+            <span style="color:var(--txt3)">Pipeline Status</span>
+            <span id="polStatus" style="font-weight:700">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <!-- Compliance — real based on scan -->
+      <div class="card card-p" style="margin-bottom:13px">
+        <div class="clbl">Compliance Status</div>
+        <div class="crow">
+          <div class="cn">Secret Exposure</div>
+          <div id="compSecrets" class="cpn">● Run scan first</div>
+        </div>
+        <div class="crow">
+          <div class="cn">Injection Vulnerabilities</div>
+          <div id="compInjection" class="cpn">● Run scan first</div>
+        </div>
+        <div class="crow">
+          <div class="cn">Cryptography Standards</div>
+          <div id="compCrypto" class="cpn">● Run scan first</div>
+        </div>
+        <div class="crow">
+          <div class="cn">Debug Mode</div>
+          <div id="compDebug" class="cpn">● Run scan first</div>
+        </div>
+      </div>
+
+      <!-- Active rules info -->
+      <div class="gr">
+        <div class="grt">⚡ Active Scanner Config</div>
+        <div class="grb" id="polGuardrail">
+          No scan run yet. Run a scan to see active security policy results.
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1262,8 +1324,10 @@ function finishScan(data, isRealScan, ghResult){
     replayRow(replayDot2, '1px solid rgba(255,255,255,.03)', '-4s', 'Full ML Audit Complete. Consolidating results.') +
     replayRow(replayDot2, 'none', '-6s', 'XAI Attribution (SHAP) values calculated.')
 
-  // Update memory page with real data
+  // Update all pages with real data
   updateMemoryPage(data, ghResult || null)
+  updateRiskPage(data)
+  updatePolicyPage(data)
 
   // Attack paths
   buildAttackPaths(data.attackPaths||[])
@@ -1694,8 +1758,140 @@ async function sendChat(){
 }
 
 // ════════════════════════════════════════
-// MEMORY PAGE — Real Data Update
+// RISK PAGE — Real Data Update
 // ════════════════════════════════════════
+function updateRiskPage(data){
+  if(!data) return
+  const findings = data.findings || []
+  const risk = data.risk || {}
+  const scan = data.scan || {}
+
+  document.getElementById('riskNoScan').style.display = 'none'
+  document.getElementById('riskGrid').style.display = 'grid'
+  document.getElementById('riskScanBadge').textContent =
+    'Repo: ' + repoName + ' · Score: ' + risk.score + '/100 · ' + risk.label
+
+  // Group findings by file type/category
+  const byFile = {}
+  findings.forEach(function(f){
+    const parts = f.file ? f.file.split('/') : ['unknown']
+    const folder = parts.length > 1 ? parts[0].toUpperCase() : 'ROOT'
+    if(!byFile[folder]) byFile[folder] = []
+    byFile[folder].push(f)
+  })
+
+  // Build severity-based clusters from real findings
+  const clusters = []
+
+  // By severity
+  const crits  = findings.filter(function(f){ return f.severity==='CRITICAL' })
+  const highs  = findings.filter(function(f){ return f.severity==='HIGH' })
+  const meds   = findings.filter(function(f){ return f.severity==='MEDIUM' })
+  const secrets= findings.filter(function(f){ return f.type==='SECRET' })
+  const sast   = findings.filter(function(f){ return f.type==='SAST' })
+
+  // Real clusters based on actual data
+  const makeCluster = function(name, count, total, severity){
+    const score = total > 0 ? Math.round((count/total)*100) : 0
+    const barW  = Math.min(100, score)
+    const color = severity==='CRITICAL'?'var(--red)':severity==='HIGH'?'var(--amber)':'var(--blue)'
+    const posture = count===0?'Clear':severity==='CRITICAL'?'Critical':severity==='HIGH'?'High Risk':'Moderate'
+    const postureClass = count===0?'ctag-ok':'ctag'
+    return { name, count, score, barW, color, posture, postureClass, severity }
+  }
+
+  clusters.push(makeCluster('CRITICAL', crits.length, findings.length||1, 'CRITICAL'))
+  clusters.push(makeCluster('HIGH', highs.length, findings.length||1, 'HIGH'))
+  clusters.push(makeCluster('MEDIUM', meds.length, findings.length||1, 'MEDIUM'))
+  clusters.push(makeCluster('SECRETS', secrets.length, findings.length||1, secrets.length>0?'CRITICAL':'LOW'))
+  clusters.push(makeCluster('SAST', sast.length, findings.length||1, sast.length>2?'HIGH':'MEDIUM'))
+  clusters.push(makeCluster('TOTAL', findings.length, Math.max(findings.length,1), findings.length>5?'CRITICAL':findings.length>0?'HIGH':'LOW'))
+
+  // Add ctag-ok style if not there
+  if(!document.getElementById('ctag-ok-style')){
+    const s = document.createElement('style')
+    s.id = 'ctag-ok-style'
+    s.textContent = '.ctag-ok{font-size:8px;color:var(--green);font-family:var(--fm);background:var(--greend);padding:2px 8px;border-radius:2px;border:1px solid rgba(52,211,153,.2);letter-spacing:1px}'
+    document.head.appendChild(s)
+  }
+
+  const grid = document.getElementById('riskGrid')
+  grid.innerHTML = ''
+  clusters.forEach(function(c){
+    const card = document.createElement('div')
+    card.className = 'rcard'
+    const barColor = c.severity==='CRITICAL'?'var(--red)':c.severity==='HIGH'?'var(--amber)':c.severity==='MEDIUM'?'var(--blue)':'var(--green)'
+    card.style.cssText = '--rbar:'+barColor
+    card.innerHTML =
+      '<div class="rkcl">Severity Cluster</div>' +
+      '<div class="rkn">'+c.name+'</div>' +
+      '<div class="rkp" style="color:'+barColor+'">'+c.count+'<sup> findings</sup></div>' +
+      '<div class="rki">Out of '+findings.length+' total</div>' +
+      '<div class="rkbar"><div class="rkbf" style="width:'+c.barW+'%;background:'+barColor+'"></div></div>' +
+      '<div class="rkps"><div class="rkpl">Posture</div><div class="'+(c.postureClass)+'">'+c.posture+'</div></div>'
+    grid.appendChild(card)
+  })
+}
+
+// ════════════════════════════════════════
+// POLICY PAGE — Real Data Update
+// ════════════════════════════════════════
+function updatePolicyPage(data){
+  if(!data) return
+  const findings = data.findings || []
+  const risk = data.risk || {}
+  const scan = data.scan || {}
+
+  const crits    = findings.filter(function(f){ return f.severity==='CRITICAL' }).length
+  const secrets  = findings.filter(function(f){ return f.type==='SECRET' }).length
+  const injections = findings.filter(function(f){ return f.name.includes('SQL')||f.name.includes('Command')||f.name.includes('XSS') }).length
+  const weakCrypto = findings.filter(function(f){ return f.name.includes('Crypto')||f.name.includes('Weak') }).length
+  const debugMode  = findings.filter(function(f){ return f.name.includes('Debug') }).length
+
+  // Show scan summary
+  document.getElementById('polScanSummary').style.display = 'block'
+  document.getElementById('polTotal').textContent = findings.length
+  document.getElementById('polCritical').textContent = crits + (crits > 0 ? ' ⚠️' : ' ✓')
+  document.getElementById('polSecrets').textContent = secrets + (secrets > 0 ? ' ⚠️' : ' ✓')
+
+  const statusEl = document.getElementById('polStatus')
+  statusEl.textContent = risk.label || 'PASS'
+  statusEl.style.color = risk.level==='FAIL' ? 'var(--red)' : risk.level==='WARN' ? 'var(--amber)' : 'var(--green)'
+
+  // Policy desc based on findings
+  document.getElementById('pol1Desc').textContent =
+    crits > 0 ? crits + ' CRITICAL finding(s) detected — action required!' : 'No critical findings detected ✓'
+
+  // Compliance matrix — real
+  const setComp = function(id, pass, label){
+    const el = document.getElementById(id)
+    if(!el) return
+    el.textContent = pass ? '● ' + label + ' ✓' : '● ' + label + ' ✗'
+    el.className = pass ? 'cok' : 'te'
+    el.style.color = pass ? 'var(--green)' : 'var(--red)'
+  }
+
+  setComp('compSecrets',   secrets === 0,    secrets === 0 ? 'No secrets found' : secrets + ' secrets found')
+  setComp('compInjection', injections === 0, injections === 0 ? 'No injections found' : injections + ' injection(s) found')
+  setComp('compCrypto',    weakCrypto === 0, weakCrypto === 0 ? 'Crypto standards OK' : weakCrypto + ' weak crypto found')
+  setComp('compDebug',     debugMode === 0,  debugMode === 0 ? 'Debug mode off' : 'Debug mode enabled!')
+
+  // Guardrail text — real
+  const issues = []
+  if(secrets > 0) issues.push(secrets + ' hardcoded secret(s)')
+  if(injections > 0) issues.push(injections + ' injection vulnerability(ies)')
+  if(weakCrypto > 0) issues.push(weakCrypto + ' weak crypto usage(s)')
+  if(debugMode > 0) issues.push('debug mode enabled')
+
+  const guard = document.getElementById('polGuardrail')
+  if(issues.length === 0){
+    guard.innerHTML = 'Scan complete for <strong style="color:var(--gold)">'+repoName+'</strong>. No policy violations detected. Repository meets security standards.'
+  } else {
+    guard.innerHTML = 'Scan of <strong style="color:var(--gold)">'+repoName+'</strong> detected: <em>'+issues.join(', ')+'</em>. Immediate remediation recommended. Use ⚡ Fix on each finding.'
+  }
+}
+
+
 function updateMemoryPage(data, ghResult){
   if(!data) return
   const findings = data.findings || []
@@ -1809,7 +2005,14 @@ function doReset(){
   document.getElementById('mlStatusLbl').textContent='Waiting to initialize...'
   document.getElementById('mlProgressBar').style.width='0%'
   var b = document.getElementById('scanModeBanner'); if(b) b.remove()
-  document.getElementById('memNoScan').style.display = 'block'
+  document.getElementById('riskNoScan').style.display = 'block'
+  document.getElementById('riskGrid').style.display = 'none'
+  document.getElementById('riskScanBadge').textContent = 'Run a scan to see real risk data'
+  document.getElementById('polScanSummary').style.display = 'none'
+  document.getElementById('polGuardrail').textContent = 'No scan run yet. Run a scan to see active security policy results.'
+  ;['compSecrets','compInjection','compCrypto','compDebug'].forEach(function(id){
+    const el=document.getElementById(id); if(el){el.textContent='● Run scan first';el.className='cpn';el.style.color=''}
+  })
   document.getElementById('memScanData').style.display = 'none'
   document.getElementById('memStatusDot').style.background = 'var(--txt3)'
   document.getElementById('memStatusTxt').textContent = 'No Scan Yet'

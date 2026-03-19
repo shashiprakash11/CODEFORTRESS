@@ -342,16 +342,18 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
 /* ── SPLASH ── */
 #splash{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .7s ease}
 #splash.hide{opacity:0;pointer-events:none}
-.sp-logo{font-size:40px;font-weight:800;letter-spacing:3px;font-family:var(--ff);overflow:hidden;white-space:nowrap;width:0;border-right:3px solid var(--gold);animation:tw 1.4s steps(12) .3s forwards,bc .6s step-end .3s 3}
-@keyframes tw{to{width:280px}}
-@keyframes bc{0%,100%{border-color:var(--gold)}50%{border-color:transparent}}
-.sp-logo em{color:var(--gold);font-style:normal}
-.sp-sub{font-size:9px;letter-spacing:4px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-top:14px;opacity:0;animation:fi .5s ease 1.8s forwards}
-.sp-bar{width:200px;height:1px;background:var(--bg4);margin-top:20px;border-radius:1px;overflow:hidden;opacity:0;animation:fi .3s ease 1.9s forwards}
-.sp-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold2));width:0;animation:sl 1.3s ease 2s forwards}
+.sp-shield{font-size:48px;margin-bottom:16px;opacity:0;animation:fi .4s ease .1s forwards}
+.sp-logo{font-size:clamp(28px,6vw,48px);font-weight:800;letter-spacing:4px;font-family:var(--ff);color:var(--txt);opacity:0;animation:fi .5s ease .4s forwards}
+.sp-logo em{color:var(--gold);font-style:normal;text-shadow:0 0 30px rgba(212,168,67,.4)}
+.sp-tagline{font-size:clamp(8px,2vw,11px);letter-spacing:5px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-top:10px;opacity:0;animation:fi .5s ease .9s forwards}
+.sp-divider{width:clamp(120px,30vw,200px);height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin-top:20px;opacity:0;animation:fi .4s ease 1.2s forwards}
+.sp-bar{width:clamp(120px,30vw,200px);height:1px;background:var(--bg4);margin-top:2px;border-radius:1px;overflow:hidden;opacity:0;animation:fi .3s ease 1.4s forwards}
+.sp-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold2));width:0;animation:sl 1.4s ease 1.5s forwards}
 @keyframes sl{to{width:100%}}
 @keyframes fi{to{opacity:1}}
-.sp-ver{font-size:8px;color:var(--txt3);font-family:var(--fm);margin-top:12px;opacity:0;animation:fi .3s ease 2.1s forwards;letter-spacing:2px}
+.sp-ver{font-size:8px;color:var(--txt3);font-family:var(--fm);margin-top:14px;opacity:0;animation:fi .3s ease 2s forwards;letter-spacing:2px}
+.sp-copy{font-size:clamp(8px,2vw,10px);color:var(--gold);font-family:var(--fm);margin-top:24px;letter-spacing:1.5px;opacity:0;animation:fi .4s ease 2.2s forwards;text-align:center}
+.sp-copy span{opacity:.6}
 
 /* ── TOAST ── */
 #toastWrap{position:fixed;top:18px;right:18px;z-index:8000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
@@ -379,54 +381,115 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
 /* ── COPYRIGHT FOOTER ── */
 .cf-footer{
   position:fixed;bottom:0;left:0;right:0;
-  height:32px;
+  height:30px;
   background:linear-gradient(90deg,#07070a,#0d0d10,#07070a);
-  border-top:1px solid rgba(212,168,67,.12);
+  border-top:1px solid rgba(212,168,67,.15);
   display:flex;align-items:center;justify-content:center;
-  gap:18px;z-index:100;
-  backdrop-filter:blur(8px);
+  z-index:100;
 }
 .cf-footer-inner{
-  display:flex;align-items:center;gap:18px;
+  display:flex;align-items:center;gap:14px;
   font-size:9px;font-family:var(--fm);
-  letter-spacing:1px;color:var(--txt3);
+  letter-spacing:1px;
 }
 .cf-footer-brand{
   color:var(--gold);font-weight:700;letter-spacing:2px;font-size:9px;
+  text-shadow:0 0 12px rgba(212,168,67,.3);
 }
 .cf-footer-sep{
-  width:1px;height:12px;background:rgba(255,255,255,.08);
+  width:1px;height:10px;background:rgba(212,168,67,.2);
 }
 .cf-footer-copy{
-  color:#454340;font-size:8px;letter-spacing:.8px;
+  color:rgba(212,168,67,.7);font-size:8px;letter-spacing:.8px;
 }
 .cf-footer-right{
-  color:#454340;font-size:8px;letter-spacing:.8px;
+  color:rgba(212,168,67,.45);font-size:8px;letter-spacing:.8px;
 }
 .cf-footer-dot{
   width:3px;height:3px;border-radius:50%;
-  background:var(--gold);opacity:.4;
+  background:var(--gold);opacity:.35;
 }
-
-@media print{
-  .cf-footer{display:none!important}
+@media(max-width:600px){
+  .cf-footer-right{display:none}
+  .cf-footer-sep:last-of-type{display:none}
 }
+@media print{.cf-footer{display:none!important}}
 .kbhint{position:fixed;bottom:40px;left:16px;font-size:7px;color:var(--txt3);font-family:var(--fm);letter-spacing:1px;opacity:.4;line-height:1.8}
 .kk{display:inline-block;background:var(--bg3);border:1px solid var(--bdr);border-radius:2px;padding:1px 4px;font-size:7px;margin:0 2px}
 
+/* ── MOBILE HAMBURGER ── */
+.mob-bar{display:none;position:fixed;top:0;left:0;right:0;height:52px;background:var(--bg1);border-bottom:1px solid var(--bdr);z-index:300;align-items:center;padding:0 16px;gap:12px}
+.mob-logo{font-size:15px;font-weight:800;letter-spacing:1px;color:var(--txt);flex:1}
+.mob-logo em{color:var(--gold);font-style:normal}
+.mob-ham{width:36px;height:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;border:1px solid var(--bdr);border-radius:var(--rs);background:var(--bg2)}
+.mob-ham span{width:16px;height:1.5px;background:var(--txt2);border-radius:1px;transition:all .2s}
+.mob-ham.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.mob-ham.open span:nth-child(2){opacity:0}
+.mob-ham.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:290;backdrop-filter:blur(4px)}
+.mob-overlay.show{display:block}
+.mob-drawer{position:fixed;top:0;left:-100%;width:260px;height:100%;background:var(--bg1);border-right:1px solid var(--bdr);z-index:295;transition:left .25s ease;overflow-y:auto;padding-top:52px}
+.mob-drawer.open{left:0}
+
 /* ── MOBILE ── */
-@media(max-width:900px){
-  .shell{grid-template-columns:1fr}
+@media(max-width:768px){
+  body{overflow:auto;height:auto}
+  .shell{grid-template-columns:1fr;grid-template-rows:auto 1fr;height:auto;min-height:100vh;padding-top:52px}
   .sidebar{display:none}
-  .main{padding:12px}
-  .two-col{grid-template-columns:1fr}
+  .topbar{display:none}
+  .mob-bar{display:flex}
+  .main{padding:14px 12px 48px;overflow:visible}
+
+  /* Intel page */
+  .igrid{grid-template-columns:1fr}
+  [style*="grid-template-columns:1fr 420px"]{display:flex!important;flex-direction:column!important;gap:12px!important}
+  [style*="grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px"]{grid-template-columns:1fr!important}
   .fsrow{grid-template-columns:1fr 1fr}
-  .defsec.show{grid-template-columns:1fr}
+  .lpanel{min-height:280px!important}
+
+  /* findings */
+  .fcode{max-width:100%!important}
+
+  /* Attack page */
   .agrid{grid-template-columns:1fr}
+
+  /* Memory page */
+  [style*="grid-template-columns:1fr 300px"]{display:flex!important;flex-direction:column!important;gap:12px!important}
+  [style*="grid-template-columns:1fr 270px"]{display:flex!important;flex-direction:column!important;gap:12px!important}
+  .three-card{height:260px!important}
+  [style*="grid-template-columns:repeat(4,1fr)"]{grid-template-columns:1fr 1fr!important}
+
+  /* Risk page */
   .rgrid{grid-template-columns:1fr 1fr}
+
+  /* Policy page */
   .pgrid{grid-template-columns:1fr}
+
+  /* History */
   .m4{grid-template-columns:1fr 1fr}
-  .topbar{flex-wrap:wrap;height:auto;padding:8px 12px;gap:8px}
+  .atbl th:nth-child(5),.atbl td:nth-child(5){display:none}
+
+  /* Supply chain */
+  .sgrid{grid-template-columns:1fr}
+
+  /* Defense chart */
+  .defsec.show{grid-template-columns:1fr!important}
+
+  /* chat panel */
+  .cpanel{width:calc(100vw - 24px)!important;right:12px!important;bottom:100px!important}
+
+  /* toast */
+  .toast{min-width:calc(100vw - 36px)!important}
+
+  /* topbar stats hidden on mobile — shown in mob-bar */
+  .tbst,.tbsep,.tbsp,.btn{display:none!important}
+
+  /* keyboard hint hidden on mobile */
+  .kbhint{display:none}
+
+  /* footer */
+  .cf-footer-right,.cf-footer-sep:nth-child(4){display:none!important}
+  .cf-footer-inner{gap:8px}
 }
 
 @media print{
@@ -441,11 +504,13 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
 
 <!-- SPLASH -->
 <div id="splash">
+  <div class="sp-shield">🛡️</div>
   <div class="sp-logo"><em>CODE</em>FORTRESS</div>
-  <div class="sp-sub">Autonomous Security Platform</div>
+  <div class="sp-tagline">Autonomous Security Platform</div>
+  <div class="sp-divider"></div>
   <div class="sp-bar"><div class="sp-bar-fill"></div></div>
-  <div class="sp-ver">v1.0.0 &nbsp;·&nbsp; 8-Layer ML Defense</div>
-
+  <div class="sp-ver">v1.0.0 &nbsp;·&nbsp; 8-Layer ML Defense &nbsp;·&nbsp; Real GitHub Scanning</div>
+  <div class="sp-copy">© 2026 Shashi Prakash <span>· All Rights Reserved</span></div>
 </div>
 
 <!-- TOAST -->
@@ -456,6 +521,41 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
   <span class="kk">Ctrl+Enter</span> Scan &nbsp;
   <span class="kk">Esc</span> Reset &nbsp;
   <span class="kk">1-7</span> Navigate
+</div>
+
+<!-- MOBILE TOP BAR -->
+<div class="mob-bar" id="mobBar">
+  <div class="mob-logo"><em>CODE</em>FORTRESS</div>
+  <div class="mob-ham" id="mobHam" onclick="toggleDrawer()">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+
+<!-- MOBILE DRAWER OVERLAY -->
+<div class="mob-overlay" id="mobOverlay" onclick="closeDrawer()"></div>
+
+<!-- MOBILE DRAWER -->
+<div class="mob-drawer" id="mobDrawer">
+  <div style="padding:16px 18px;border-bottom:1px solid var(--bdr)">
+    <div style="font-size:16px;font-weight:800;color:var(--txt)"><em style="color:var(--gold);font-style:normal">CODE</em>FORTRESS</div>
+    <div style="font-size:8px;letter-spacing:2px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-top:4px">High-Integrity Core</div>
+  </div>
+  <nav style="padding:8px 0">
+    <div style="font-size:8px;letter-spacing:2.5px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;padding:10px 18px 4px">Core</div>
+    <div class="ni active" data-page="intel" onclick="goPageMob('intel')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Intelligence</div>
+    <div class="ni" data-page="attack" onclick="goPageMob('attack')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Attack Sim</div>
+    <div class="ni" data-page="memory" onclick="goPageMob('memory')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>Sec Memory</div>
+    <div style="font-size:8px;letter-spacing:2.5px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;padding:10px 18px 4px">Analysis</div>
+    <div class="ni" data-page="supply" onclick="goPageMob('supply')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>Supply Chain</div>
+    <div class="ni" data-page="risk" onclick="goPageMob('risk')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Risk Maps</div>
+    <div style="font-size:8px;letter-spacing:2.5px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;padding:10px 18px 4px">Governance</div>
+    <div class="ni" data-page="policy" onclick="goPageMob('policy')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>Policy Center</div>
+    <div class="ni" data-page="history" onclick="goPageMob('history')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History</div>
+  </nav>
+  <div style="padding:16px 18px;border-top:1px solid var(--bdr);margin-top:8px">
+    <button class="rbtn" onclick="doReset();closeDrawer()"><span>Onboard New Target</span><span>+</span></button>
+    <div style="margin-top:12px;font-size:8px;color:rgba(212,168,67,.6);font-family:var(--fm);letter-spacing:1px;text-align:center">© 2026 Shashi Prakash · All Rights Reserved</div>
+  </div>
 </div>
 
 <div class="shell">
@@ -2082,7 +2182,7 @@ function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 setTimeout(function(){
   const sp = document.getElementById('splash')
   if(sp){ sp.classList.add('hide'); setTimeout(function(){ sp.style.display='none' }, 700) }
-}, 3400)
+}, 3800)
 
 // ════════════════════════════════════════
 // TOAST
@@ -2246,6 +2346,33 @@ window.goPage           = goPage
 window.copyFix          = copyFix
 window.exportPDF        = exportPDF
 window.updateMemoryPage = updateMemoryPage
+
+// ════════════════════════════════════════
+// MOBILE DRAWER
+// ════════════════════════════════════════
+function toggleDrawer(){
+  const ham=document.getElementById('mobHam')
+  const drawer=document.getElementById('mobDrawer')
+  const overlay=document.getElementById('mobOverlay')
+  ham.classList.toggle('open')
+  drawer.classList.toggle('open')
+  overlay.classList.toggle('show')
+}
+function closeDrawer(){
+  document.getElementById('mobHam').classList.remove('open')
+  document.getElementById('mobDrawer').classList.remove('open')
+  document.getElementById('mobOverlay').classList.remove('show')
+}
+function goPageMob(id){
+  goPage(id)
+  closeDrawer()
+  document.querySelectorAll('#mobDrawer .ni').forEach(function(n){
+    n.classList.toggle('active', n.dataset.page===id)
+  })
+}
+window.toggleDrawer = toggleDrawer
+window.closeDrawer  = closeDrawer
+window.goPageMob    = goPageMob
 
 // Init on load
 ;(function(){ buildStreamIdle() })()

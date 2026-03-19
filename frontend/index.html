@@ -620,26 +620,123 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff);overflow:hidden
 <!-- MEMORY PAGE -->
 <div class="page" id="page-memory">
   <div class="ph phr">
-    <div><div class="pht">Security <strong>Memory Graph</strong></div><div class="phs">Persistent Context &amp; Cross-Repo Threat Intelligence</div></div>
-    <button class="btn btn-gold">Active Memory: Synchronized</button>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 270px;gap:16px">
-    <div class="three-card" style="height:380px">
-      <div class="three-tl">Neural Fingerprint Visualizer</div>
-      <div class="three-tr" id="threeTR">Processing Real-Time Signals</div>
-      <canvas id="threeCanvas"></canvas>
-    </div>
     <div>
-      <div class="card card-p" style="margin-bottom:13px">
-        <div class="clbl">Memory Health</div>
-        <div class="hbw"><div class="hbr">SHANNON_ENTROPY_V1 <span>98%</span></div><div class="hbt"><div class="hbf" style="width:98%"></div></div></div>
-        <div class="hbw"><div class="hbr">XGBOOST_TREE_EXPLORER <span>100%</span></div><div class="hbt"><div class="hbf" style="width:100%"></div></div></div>
-        <div class="hbw"><div class="hbr">GRAPHSAGE_EMBEDDING <span>92%</span></div><div class="hbt"><div class="hbf" style="width:92%"></div></div></div>
-        <div class="hbw"><div class="hbr">DAST_RUNTIME_SIM <span>87%</span></div><div class="hbt"><div class="hbf" style="width:87%"></div></div></div>
+      <div class="pht">Security <strong>Scan Intelligence</strong></div>
+      <div class="phs">Real-Time Repository Analysis · Threat Context</div>
+    </div>
+    <div id="memStatusBadge" style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rs);font-size:8px;letter-spacing:1.5px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase">
+      <div style="width:5px;height:5px;border-radius:50%;background:var(--txt3)" id="memStatusDot"></div>
+      <span id="memStatusTxt">No Scan Yet</span>
+    </div>
+  </div>
+
+  <!-- No scan state -->
+  <div id="memNoScan" style="text-align:center;padding:60px 20px;color:var(--txt3)">
+    <div style="font-size:40px;margin-bottom:16px;opacity:.3">🔍</div>
+    <div style="font-family:var(--fm);font-size:11px;margin-bottom:8px">No scan data available</div>
+    <div style="font-family:var(--fm);font-size:10px">Run a scan on Intelligence Space first</div>
+  </div>
+
+  <!-- Scan data state -->
+  <div id="memScanData" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 300px;gap:16px">
+
+      <!-- LEFT — 3D + Stats -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+
+        <!-- 3D Canvas -->
+        <div class="three-card" style="height:320px">
+          <div class="three-tl">Repository Fingerprint</div>
+          <div class="three-tr" id="threeTR">Analyzing...</div>
+          <canvas id="threeCanvas"></canvas>
+        </div>
+
+        <!-- Real scan stats grid -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <div class="card card-p" style="text-align:center">
+            <div style="font-size:7px;letter-spacing:2px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-bottom:8px">Files Scanned</div>
+            <div style="font-size:24px;font-weight:800;font-family:var(--fm);color:var(--gold)" id="memFiles">0</div>
+          </div>
+          <div class="card card-p" style="text-align:center">
+            <div style="font-size:7px;letter-spacing:2px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-bottom:8px">Secrets Found</div>
+            <div style="font-size:24px;font-weight:800;font-family:var(--fm);color:var(--amber)" id="memSecrets">0</div>
+          </div>
+          <div class="card card-p" style="text-align:center">
+            <div style="font-size:7px;letter-spacing:2px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-bottom:8px">Vulnerabilities</div>
+            <div style="font-size:24px;font-weight:800;font-family:var(--fm);color:var(--red)" id="memVulns">0</div>
+          </div>
+          <div class="card card-p" style="text-align:center">
+            <div style="font-size:7px;letter-spacing:2px;color:var(--txt3);font-family:var(--fm);text-transform:uppercase;margin-bottom:8px">Risk Score</div>
+            <div style="font-size:24px;font-weight:800;font-family:var(--fm);color:var(--red)" id="memRisk">0</div>
+          </div>
+        </div>
       </div>
-      <div class="card card-p">
-        <div class="clbl">Contextual Summary</div>
-        <div style="font-size:10px;color:var(--txt2);font-family:var(--fm);line-height:1.8;font-style:italic" id="memSum">Awaiting repository context to begin cross-referencing against global CWE patterns.</div>
+
+      <!-- RIGHT — Real metrics -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+
+        <!-- Scan Metrics (real) -->
+        <div class="card card-p">
+          <div class="clbl">Scan Metrics</div>
+          <div class="hbw">
+            <div class="hbr">Secret Detection Coverage <span id="mBar1Txt">0%</span></div>
+            <div class="hbt"><div class="hbf" id="mBar1" style="width:0%"></div></div>
+          </div>
+          <div class="hbw">
+            <div class="hbr">SAST Rules Triggered <span id="mBar2Txt">0%</span></div>
+            <div class="hbt"><div class="hbf" id="mBar2" style="width:0%"></div></div>
+          </div>
+          <div class="hbw">
+            <div class="hbr">Critical Severity Rate <span id="mBar3Txt">0%</span></div>
+            <div class="hbt"><div class="hbf" id="mBar3" style="width:0%;background:var(--red)"></div></div>
+          </div>
+          <div class="hbw">
+            <div class="hbr">File Scan Coverage <span id="mBar4Txt">0%</span></div>
+            <div class="hbt"><div class="hbf" id="mBar4" style="width:0%;background:var(--blue)"></div></div>
+          </div>
+        </div>
+
+        <!-- Repo Info (real) -->
+        <div class="card card-p">
+          <div class="clbl">Repository Context</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm)">
+              <span style="color:var(--txt3)">Repository</span>
+              <span style="color:var(--txt)" id="memRepo">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm)">
+              <span style="color:var(--txt3)">Language</span>
+              <span style="color:var(--gold)" id="memLang">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm)">
+              <span style="color:var(--txt3)">Stars</span>
+              <span style="color:var(--txt)" id="memStars">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm)">
+              <span style="color:var(--txt3)">Risk Grade</span>
+              <span style="font-weight:700" id="memGrade">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm)">
+              <span style="color:var(--txt3)">Scanned At</span>
+              <span style="color:var(--txt3)" id="memTime">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Findings (real) -->
+        <div class="card card-p">
+          <div class="clbl">Top Findings</div>
+          <div id="memTopFindings" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+
+        <!-- Contextual summary (real) -->
+        <div class="card card-p">
+          <div class="clbl">Analysis Summary</div>
+          <div style="font-size:10px;color:var(--txt2);font-family:var(--fm);line-height:1.8" id="memSum">
+            Awaiting repository scan data.
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -992,10 +1089,9 @@ async function startScan(){
     document.getElementById('ghF').textContent = (ghResult.forks_count || 0).toLocaleString()
     document.getElementById('ghL').textContent = ghResult.language || 'N/A'
     document.getElementById('ghInfo').classList.add('show')
-    document.getElementById('memSum').textContent = 'Security memory ingested for ' + repoName + '. Language: ' + (ghResult.language || 'Unknown') + '. Stars: ' + (ghResult.stargazers_count || 0) + '. Cross-referencing against global CWE patterns.'
   }
 
-  const apiBase = BACKEND_URL
+  const apiBase = BACKEND_URL  // Render.com backend URL
   let data = null
   let isRealScan = false
 
@@ -1038,7 +1134,7 @@ async function startScan(){
     addLog('warn','[DEMO] Simulated findings shown. Connect backend for real results.')
   }
   addLog('ok','Audit Complete. Risk Score: '+data.risk.score+'/100 — '+data.risk.label)
-  finishScan(data, isRealScan)
+  finishScan(data, isRealScan, ghResult)
 }
 
 
@@ -1096,7 +1192,7 @@ function generateDemoData(name, gh){
 // ════════════════════════════════════════
 // FINISH SCAN
 // ════════════════════════════════════════
-function finishScan(data, isRealScan){
+function finishScan(data, isRealScan, ghResult){
   scanDone=true; scanning=false; auditCount++
   document.getElementById('scBtn').disabled=false
   document.getElementById('scBtnTxt').textContent='Re-Initialize Secure Audit'
@@ -1166,6 +1262,9 @@ function finishScan(data, isRealScan){
     replayRow(replayDot2, '1px solid rgba(255,255,255,.03)', '-4s', 'Full ML Audit Complete. Consolidating results.') +
     replayRow(replayDot2, 'none', '-6s', 'XAI Attribution (SHAP) values calculated.')
 
+  // Update memory page with real data
+  updateMemoryPage(data, ghResult || null)
+
   // Attack paths
   buildAttackPaths(data.attackPaths||[])
   document.getElementById('atkCtx').textContent='INTERNAL / '+repoName
@@ -1223,6 +1322,7 @@ function buildFindingsList(findings){
 // ════════════════════════════════════════
 const GROQ_KEY = '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'
 const GROQ_MODEL = 'llama-3.3-70b-versatile'
+// ── BACKEND CONFIG — Render URL yahan daalo
 const BACKEND_URL = 'https://codefortress-backend.onrender.com'
 
 async function callGroq(systemPrompt, userPrompt, maxTokens){
@@ -1594,8 +1694,98 @@ async function sendChat(){
 }
 
 // ════════════════════════════════════════
-// RESET
+// MEMORY PAGE — Real Data Update
 // ════════════════════════════════════════
+function updateMemoryPage(data, ghResult){
+  if(!data) return
+  const findings = data.findings || []
+  const scan = data.scan || {}
+  const risk = data.risk || {}
+  const repo = data.repo || {}
+
+  // Show scan data, hide empty state
+  document.getElementById('memNoScan').style.display = 'none'
+  document.getElementById('memScanData').style.display = 'block'
+
+  // Status badge
+  const dot = document.getElementById('memStatusDot')
+  const txt = document.getElementById('memStatusTxt')
+  dot.style.background = risk.level==='FAIL' ? 'var(--red)' : risk.level==='WARN' ? 'var(--amber)' : 'var(--green)'
+  dot.style.boxShadow = risk.level==='FAIL' ? '0 0 6px var(--red)' : risk.level==='WARN' ? '0 0 6px var(--amber)' : '0 0 6px var(--green)'
+  txt.textContent = 'Scan Complete — ' + (risk.label || 'PASS')
+
+  // 3D label
+  const tr = document.getElementById('threeTR')
+  if(tr) tr.textContent = findings.length + ' Threats Mapped'
+
+  // Stats
+  document.getElementById('memFiles').textContent = scan.filesScanned || 0
+  document.getElementById('memSecrets').textContent = scan.secretsFound || 0
+  document.getElementById('memVulns').textContent = scan.sastFound || 0
+  document.getElementById('memRisk').textContent = risk.score || 0
+
+  // Real metric bars
+  const total = findings.length || 1
+  const criticals = findings.filter(function(f){ return f.severity==='CRITICAL' }).length
+  const secretPct = Math.min(100, Math.round((scan.secretsFound || 0) / total * 100))
+  const sastPct   = Math.min(100, Math.round((scan.sastFound || 0) / total * 100))
+  const critPct   = Math.min(100, Math.round(criticals / total * 100))
+  const filePct   = scan.totalFiles ? Math.min(100, Math.round(scan.filesScanned / scan.totalFiles * 100)) : 0
+
+  document.getElementById('mBar1Txt').textContent = secretPct + '%'
+  document.getElementById('mBar1').style.width = secretPct + '%'
+  document.getElementById('mBar2Txt').textContent = sastPct + '%'
+  document.getElementById('mBar2').style.width = sastPct + '%'
+  document.getElementById('mBar3Txt').textContent = critPct + '%'
+  document.getElementById('mBar3').style.width = critPct + '%'
+  document.getElementById('mBar4Txt').textContent = filePct + '%'
+  document.getElementById('mBar4').style.width = filePct + '%'
+
+  // Repo info
+  document.getElementById('memRepo').textContent = repo.fullName || repo.name || repoName
+  document.getElementById('memLang').textContent = repo.language || (ghResult && ghResult.language) || 'Unknown'
+  document.getElementById('memStars').textContent = (repo.stars || (ghResult && ghResult.stargazers_count) || 0).toLocaleString()
+  const gradeEl = document.getElementById('memGrade')
+  gradeEl.textContent = risk.grade || '—'
+  gradeEl.style.color = {A:'var(--green)',B:'var(--green)',C:'var(--amber)',D:'var(--amber)',F:'var(--red)'}[risk.grade] || 'var(--txt)'
+  const scannedAt = scan.scannedAt ? new Date(scan.scannedAt).toLocaleTimeString() : new Date().toLocaleTimeString()
+  document.getElementById('memTime').textContent = scannedAt
+
+  // Top 3 findings
+  const topEl = document.getElementById('memTopFindings')
+  topEl.innerHTML = ''
+  if(findings.length === 0){
+    topEl.innerHTML = '<div style="font-size:10px;color:var(--green);font-family:var(--fm)">✓ No vulnerabilities detected</div>'
+  } else {
+    findings.slice(0,4).forEach(function(f){
+      const sev = f.severity
+      const color = {CRITICAL:'var(--red)',HIGH:'var(--amber)',MEDIUM:'var(--blue)',LOW:'var(--txt3)'}[sev]||'var(--txt3)'
+      const item = document.createElement('div')
+      item.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03)'
+      item.innerHTML = '<div style="width:6px;height:6px;border-radius:50%;background:'+color+';flex-shrink:0"></div>' +
+        '<div style="flex:1;min-width:0"><div style="font-size:10px;font-family:var(--fm);color:var(--txt);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+f.name+'</div>' +
+        '<div style="font-size:8px;color:var(--txt3);font-family:var(--fm)">'+f.file+'</div></div>' +
+        '<span style="font-size:8px;font-family:var(--fm);color:'+color+';flex-shrink:0">'+sev+'</span>'
+      topEl.appendChild(item)
+    })
+  }
+
+  // Summary
+  const critCount = findings.filter(function(f){ return f.severity==='CRITICAL' }).length
+  const highCount = findings.filter(function(f){ return f.severity==='HIGH' }).length
+  let summary = 'Scanned ' + (scan.filesScanned||0) + ' files from ' + (repo.fullName||repoName) + '. '
+  if(findings.length === 0){
+    summary += 'No vulnerabilities detected. Repository appears secure.'
+  } else {
+    summary += 'Found ' + findings.length + ' issues: '
+    if(critCount > 0) summary += critCount + ' critical, '
+    if(highCount > 0) summary += highCount + ' high severity. '
+    summary += 'Risk score: ' + (risk.score||0) + '/100. '
+    summary += 'Immediate action required on critical findings.'
+  }
+  document.getElementById('memSum').textContent = summary
+}
+
 function doReset(){
   scanning=false; scanDone=false; scanData=null; repoName=''; fixes={}; window._findings={}
   document.getElementById('actx').textContent='Idle'
@@ -1619,6 +1809,10 @@ function doReset(){
   document.getElementById('mlStatusLbl').textContent='Waiting to initialize...'
   document.getElementById('mlProgressBar').style.width='0%'
   var b = document.getElementById('scanModeBanner'); if(b) b.remove()
+  document.getElementById('memNoScan').style.display = 'block'
+  document.getElementById('memScanData').style.display = 'none'
+  document.getElementById('memStatusDot').style.background = 'var(--txt3)'
+  document.getElementById('memStatusTxt').textContent = 'No Scan Yet'
   document.getElementById('atkGrid').innerHTML='<div class="card card-p" style="grid-column:1/-1;text-align:center;padding:40px;color:var(--txt3)"><div style="font-size:28px;margin-bottom:12px;opacity:.35">🔒</div><div style="font-family:var(--fm);font-size:11px">Initialize a scan on the Intelligence Space to load real threat findings.</div></div>'
   animateEntropy(17.781)
   goPage('intel')
@@ -1790,16 +1984,17 @@ document.addEventListener('keydown', function(e){
 })
 
 
-window.startScan      = startScan
-window.doReset        = doReset
-window.doExecute      = doExecute
-window.toggleChat     = toggleChat
-window.sendChat       = sendChat
-window.setChatMode    = setChatMode
-window.requestFix     = requestFix
-window.goPage         = goPage
-window.copyFix        = copyFix
-window.exportPDF      = exportPDF
+window.startScan        = startScan
+window.doReset          = doReset
+window.doExecute        = doExecute
+window.toggleChat       = toggleChat
+window.sendChat         = sendChat
+window.setChatMode      = setChatMode
+window.requestFix       = requestFix
+window.goPage           = goPage
+window.copyFix          = copyFix
+window.exportPDF        = exportPDF
+window.updateMemoryPage = updateMemoryPage
 
 // Init on load
 ;(function(){ buildStreamIdle() })()

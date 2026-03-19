@@ -995,7 +995,7 @@ async function startScan(){
     document.getElementById('memSum').textContent = 'Security memory ingested for ' + repoName + '. Language: ' + (ghResult.language || 'Unknown') + '. Stars: ' + (ghResult.stargazers_count || 0) + '. Cross-referencing against global CWE patterns.'
   }
 
-  const apiBase = window.location.origin  // Same domain — Vercel serverless
+  const apiBase = BACKEND_URL
   let data = null
   let isRealScan = false
 
@@ -1223,7 +1223,7 @@ function buildFindingsList(findings){
 // ════════════════════════════════════════
 const GROQ_KEY = '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'
 const GROQ_MODEL = 'llama-3.3-70b-versatile'
-const BACKEND_URL = ''  // Empty = same domain (Vercel serverless)
+const BACKEND_URL = 'https://codefortress-backend.onrender.com'
 
 async function callGroq(systemPrompt, userPrompt, maxTokens){
   try{

@@ -200,13 +200,14 @@ Set Backend URL in app topbar: `http://localhost:4000`
 
 ### Scan a vulnerable demo repo:
 ```
-https://github.com/shashiprakash11/hackverse-demo-app
+https://github.com/shashiprakash11/vulnerablerepo
 ```
 
 **Expected findings:**
-- 4 hardcoded secrets (Stripe, AWS, GitHub token, password)
-- 6 SAST vulnerabilities (SQL injection, XSS, command injection...)
+- 4+ hardcoded secrets (Stripe, AWS, GitHub token, password)
+- 6+ SAST vulnerabilities (SQL injection, XSS, command injection...)
 - Risk Score: 70+ / FAILED
+- Try your own repo for more accurate understandings.
 
 ### API Test:
 ```bash

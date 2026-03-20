@@ -266,8 +266,7 @@ The scanning process runs through 8 visual stages:
 
 ## 👨‍💻 Author
 
-**Shashi Prakash**
-Final Year CS/IT Project — 2025-26
+**SHASHI PRAKASH**
 
 ---
 

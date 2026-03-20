@@ -217,7 +217,7 @@ curl https://codefortress-backend.onrender.com/api/health
 # Scan a repo
 curl -X POST https://codefortress-backend.onrender.com/api/scan \
   -H "Content-Type: application/json" \
-  -d '{"repo_url":"https://github.com/shashiprakash11/hackverse-demo-app"}'
+  -d '{"repo_url":"https://github.com/shashiprakash11/vulnerablerepo"}'
 ```
 
 ---

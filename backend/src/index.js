@@ -12,6 +12,12 @@ const githubRoutes = require('./routes/github');
 const app  = express();
 const PORT = process.env.PORT || 4000;
 
+// ── AI key detection (Groq takes priority, Claude as fallback)
+const hasGroq      = !!process.env.GROQ_API_KEY;
+const hasAnthropic = !!process.env.ANTHROPIC_API_KEY;
+const hasAI        = hasGroq || hasAnthropic;
+const aiProvider   = hasGroq ? 'groq' : hasAnthropic ? 'claude' : 'none';
+
 // ── Middleware
 app.use(helmet({ crossOriginEmbedderPolicy: false }));
 app.use(cors({ origin: '*' }));
@@ -33,16 +39,20 @@ app.get('/', (_, res) => res.json({
   features: {
     secretDetection: true,
     sastAnalysis:    true,
-    aiAutoFix:       !!process.env.ANTHROPIC_API_KEY,
-    githubPR:        !!process.env.GITHUB_TOKEN
+    aiAutoFix:       hasAI,
+    aiProvider:      aiProvider,
+    githubPR:        !!process.env.GITHUB_TOKEN,
   }
 }));
 
 app.get('/api/health', (_, res) => res.json({
-  status:    'healthy',
-  timestamp: new Date().toISOString(),
-  claude:    !!process.env.ANTHROPIC_API_KEY,
-  github:    !!process.env.GITHUB_TOKEN
+  status:      'healthy',
+  timestamp:   new Date().toISOString(),
+  claude:      hasAI,        // true if ANY AI key is set
+  aiProvider:  aiProvider,   // "groq" | "claude" | "none"
+  groq:        hasGroq,
+  anthropic:   hasAnthropic,
+  github:      !!process.env.GITHUB_TOKEN,
 }));
 
 app.use('/api/scan',   scanRoutes);
@@ -61,18 +71,18 @@ app.use((err, _, res, __) => {
 app.listen(PORT, () => {
   console.log('\n🛡️  CodeFortress CI Backend');
   console.log('📡  http://localhost:' + PORT);
-  console.log('🤖  Claude API: ' + (process.env.ANTHROPIC_API_KEY ? '✅ Ready' : '❌ Not set'));
-  console.log('🐙  GitHub:     ' + (process.env.GITHUB_TOKEN     ? '✅ Ready' : '⚠️  Not set (public repos only)') + '\n');
+  console.log('🤖  AI Provider: ' + (hasGroq ? '✅ Groq (Llama-3.3-70b)' : hasAnthropic ? '✅ Claude' : '❌ No AI key set'));
+  console.log('🐙  GitHub:      ' + (process.env.GITHUB_TOKEN ? '✅ Ready' : '⚠️  Not set (public repos only)') + '\n');
 
-  // Keep-alive ping every 14 minutes to prevent Railway free tier sleep
-  if(process.env.NODE_ENV === 'production') {
+  // Keep-alive ping every 14 minutes to prevent Render free tier sleep
+  if (process.env.NODE_ENV === 'production') {
     const http = require('http');
     setInterval(() => {
       try {
         http.get('http://localhost:' + PORT + '/api/health', (res) => {
-          console.log('Keep-alive ping: ' + res.statusCode);
+          console.log('[keep-alive] ping:', res.statusCode);
         }).on('error', () => {});
-      } catch(e) {}
+      } catch (e) {}
     }, 14 * 60 * 1000);
   }
 });

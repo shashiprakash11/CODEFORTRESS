@@ -37,7 +37,7 @@ CODEFORTRESS/
 
 ---
 
-## 🚀 STEP 1 — Local pe chalao (5 minutes)
+## 🚀 STEP 1 
 
 ### Prerequisites
 - Node.js 18+ installed (nodejs.org se download karo)

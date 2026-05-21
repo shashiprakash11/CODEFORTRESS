@@ -1542,6 +1542,10 @@ function buildFindingsList(findings){
     const item=document.createElement('div')
     item.className='fitem'
     item.innerHTML=`
+'<div style="display:flex;align-items:center;gap:6px;margin-top:4px">' +
+  (getGitHubLink(f) ? '<a class="flink" href="' + getGitHubLink(f) + '" target="_blank">↗ View on GitHub</a>' : '') +
+  '<button class="fcopy" onclick="copyFinding(\'' + f.id + '\')">Copy</button>' +
+'</div>'
       <div class="${dotClass(f.severity)}"></div>
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap">

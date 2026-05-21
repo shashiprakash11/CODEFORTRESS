@@ -2417,6 +2417,341 @@ window.goPageMob    = goPageMob
 
 // Init on load
 ;(function(){ buildStreamIdle() })()
+  // ════════════════════════════════════════
+// SCAN HISTORY
+// ════════════════════════════════════════
+const HISTORY_KEY = 'cf_scan_history';
+const MAX_HISTORY = 5;
+
+function saveToHistory(repoUrl, result) {
+  try {
+    const existing = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    const entry = {
+      repoUrl,
+      fullName:  result.repo?.fullName || repoUrl,
+      grade:     result.risk?.grade || '?',
+      score:     result.risk?.score || 0,
+      findings:  result.findings?.length || 0,
+      scannedAt: new Date().toISOString(),
+      result,
+    };
+    // Remove duplicate if same repo
+    const filtered = existing.filter(e => e.repoUrl !== repoUrl);
+    const updated  = [entry, ...filtered].slice(0, MAX_HISTORY);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+    renderHistory();
+  } catch(e) {}
+}
+
+function renderHistory() {
+  const el = document.getElementById('histList');
+  if (!el) return;
+  try {
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    if (!history.length) {
+      el.innerHTML = '<div style="font-size:10px;color:var(--txt3);font-family:var(--fm)">No scan history yet.</div>';
+      return;
+    }
+    const GRADE_COLOR = { A:'var(--green)', B:'var(--green)', C:'var(--amber)', D:'var(--amber)', F:'var(--red)' };
+    el.innerHTML = history.map((h, i) => `
+      <div class="hist-item" onclick="loadFromHistory(${i})">
+        <div>
+          <div class="hist-repo">${h.fullName}</div>
+          <div class="hist-meta">${h.findings} findings · ${new Date(h.scannedAt).toLocaleDateString()}</div>
+        </div>
+        <div class="hist-grade" style="color:${GRADE_COLOR[h.grade]||'var(--txt2)'}">
+          ${h.grade}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+function loadFromHistory(idx) {
+  try {
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    const entry   = history[idx];
+    if (!entry) return;
+    document.getElementById('repoUrl').value = entry.repoUrl;
+    showToast('ok', 'Loaded from history: ' + entry.fullName);
+  } catch(e) {}
+}
+
+// ════════════════════════════════════════
+// COPY FINDING
+// ════════════════════════════════════════
+function copyFinding(id) {
+  const f = window._findings?.[id];
+  if (!f) return;
+  const text = [
+    '=== CodeFortress CI Finding ===',
+    'Name:     ' + f.name,
+    'Severity: ' + f.severity,
+    'CWE:      ' + (f.cwe || 'N/A'),
+    'OWASP:    ' + (f.owasp || 'N/A'),
+    'File:     ' + f.file + ' (Line ' + f.line + ')',
+    'Code:     ' + (f.lineText || 'N/A'),
+    '',
+    'Description:',
+    f.description || '',
+    '',
+    'Fix:',
+    f.remediation || '',
+  ].join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('ok', 'Finding copied to clipboard!');
+  }).catch(() => {
+    showToast('err', 'Copy failed');
+  });
+}
+
+// ════════════════════════════════════════
+// GITHUB PERMALINK
+// ════════════════════════════════════════
+function getGitHubLink(finding) {
+  if (!scanData?.repo) return null;
+  const { owner, name, defaultBranch } = scanData.repo;
+  const branch = defaultBranch || 'main';
+  return `https://github.com/${owner}/${name}/blob/${branch}/${finding.file}#L${finding.line}`;
+}
+
+// ════════════════════════════════════════
+// SEVERITY FILTER
+// ════════════════════════════════════════
+let activeFilter = 'ALL';
+
+function setFilter(sev) {
+  activeFilter = sev;
+  document.querySelectorAll('.fbtn').forEach(b => {
+    b.classList.toggle('active', b.dataset.sev === sev);
+  });
+  renderFindings();
+}
+
+function getFilteredFindings() {
+  if (!scanData?.findings) return [];
+  if (activeFilter === 'ALL') return scanData.findings;
+  return scanData.findings.filter(f => f.severity === activeFilter);
+}
+
+// ════════════════════════════════════════
+// REAL SCAN BADGE
+// ════════════════════════════════════════
+function renderBadge() {
+  if (!scanData?.risk || !scanData?.repo) return;
+  const { grade, score } = scanData.risk;
+  const { owner, name }  = scanData.repo;
+  const badgeUrl = `${BACKEND_URL}/api/badge?owner=${owner}&repo=${name}&score=${score}&grade=${grade}`;
+  const markdownBadge = `![CodeFortress CI](${badgeUrl})`;
+
+  const el = document.getElementById('badgePreview');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="clbl">Real Scan Badge</div>
+    <img src="${badgeUrl}" alt="CodeFortress Badge" style="margin-bottom:8px">
+    <div class="badge-url">${markdownBadge}</div>
+    <button class="btn btn-g" style="margin-top:8px;font-size:9px" onclick="navigator.clipboard.writeText('${markdownBadge}').then(()=>showToast('ok','Badge markdown copied!'))">
+      Copy Markdown
+    </button>
+  `;
+}
+
+// ════════════════════════════════════════
+// PDF REPORT (improved)
+// ════════════════════════════════════════
+function exportPDF() {
+  if (!scanData) return showToast('err', 'No scan data to export');
+  const { repo, risk, findings, attackPaths: paths, scan } = scanData;
+
+  const COLOR = { CRITICAL:'#ef4444', HIGH:'#f59e0b', MEDIUM:'#60a5fa', LOW:'#6b7280' };
+  const GRADE_COLOR = { A:'#22c55e', B:'#84cc16', C:'#f59e0b', D:'#f97316', F:'#ef4444' };
+
+  const criticals = findings.filter(f => f.severity==='CRITICAL');
+  const highs     = findings.filter(f => f.severity==='HIGH');
+  const mediums   = findings.filter(f => f.severity==='MEDIUM');
+
+  const html = `
+<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>CodeFortress CI — Security Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Inter,sans-serif;background:#fff;color:#111;font-size:13px;padding:40px}
+  .header{border-bottom:3px solid #111;padding-bottom:20px;margin-bottom:28px}
+  .brand{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#666;margin-bottom:6px}
+  h1{font-size:28px;font-weight:800;line-height:1.1;margin-bottom:4px}
+  .repo{font-size:13px;color:#555;font-family:'JetBrains Mono',monospace}
+  .meta{font-size:11px;color:#888;margin-top:4px}
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+  .scard{border:1px solid #e5e7eb;border-radius:8px;padding:16px}
+  .slbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#888;margin-bottom:6px}
+  .sval{font-size:28px;font-weight:800}
+  .grade{font-size:28px;font-weight:800;color:${GRADE_COLOR[risk?.grade]||'#111'}}
+  h2{font-size:16px;font-weight:700;margin:24px 0 12px;border-bottom:1px solid #e5e7eb;padding-bottom:8px}
+  .finding{border:1px solid #e5e7eb;border-radius:6px;padding:12px 14px;margin-bottom:8px;border-left:3px solid #ddd}
+  .finding.CRITICAL{border-left-color:#ef4444}
+  .finding.HIGH{border-left-color:#f59e0b}
+  .finding.MEDIUM{border-left-color:#60a5fa}
+  .finding.LOW{border-left-color:#9ca3af}
+  .fname{font-size:13px;font-weight:700;margin-bottom:4px}
+  .fbadge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:1px;
+    text-transform:uppercase;padding:2px 7px;border-radius:3px;color:#fff;margin-right:6px}
+  .CRITICAL{background:#ef4444}.HIGH{background:#f59e0b;color:#111}
+  .MEDIUM{background:#60a5fa}.LOW{background:#9ca3af}
+  .ffile{font-size:10px;font-family:'JetBrains Mono',monospace;color:#888;margin:4px 0}
+  .fcode{font-size:10px;font-family:'JetBrains Mono',monospace;background:#f9f9f9;
+    padding:6px 10px;border-radius:4px;margin:6px 0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .fdesc{font-size:11px;color:#555;margin-top:4px}
+  .ffix{font-size:11px;color:#16a34a;margin-top:4px;font-style:italic}
+  .path-item{border:1px solid #fee2e2;border-radius:6px;padding:12px;margin-bottom:8px;background:#fff5f5}
+  .path-title{font-size:13px;font-weight:700;color:#dc2626;margin-bottom:8px}
+  .step{font-size:11px;color:#555;padding:3px 0 3px 16px;position:relative}
+  .step::before{content:counter(step);counter-increment:step;position:absolute;left:0;
+    font-weight:700;color:#dc2626;font-size:10px}
+  .steps{counter-reset:step}
+  .footer{margin-top:40px;padding-top:16px;border-top:1px solid #e5e7eb;
+    font-size:10px;color:#888;display:flex;justify-content:space-between}
+  .no-print{display:none}
+  @media print{body{padding:20px}.no-print{display:none}}
+</style></head><body>
+
+<div class="header">
+  <div class="brand">🛡️ CodeFortress CI — Security Audit Report</div>
+  <h1>${repo?.fullName || 'Unknown Repository'}</h1>
+  <div class="repo">${repo?.description || ''}</div>
+  <div class="meta">
+    Scanned: ${new Date(scan?.scannedAt||Date.now()).toLocaleString()} ·
+    Files: ${scan?.filesScanned||0} ·
+    Language: ${repo?.language||'Unknown'} ·
+    Stars: ${repo?.stars||0}
+  </div>
+</div>
+
+<div class="summary">
+  <div class="scard">
+    <div class="slbl">Risk Score</div>
+    <div class="sval">${risk?.score||0}<span style="font-size:16px;color:#888">/100</span></div>
+  </div>
+  <div class="scard">
+    <div class="slbl">Grade</div>
+    <div class="grade">${risk?.grade||'?'}</div>
+  </div>
+  <div class="scard">
+    <div class="slbl">Total Findings</div>
+    <div class="sval">${findings?.length||0}</div>
+  </div>
+  <div class="scard">
+    <div class="slbl">Verdict</div>
+    <div class="sval" style="font-size:16px;margin-top:6px;color:${risk?.level==='FAIL'?'#ef4444':risk?.level==='WARN'?'#f59e0b':'#22c55e'}">${risk?.label||'N/A'}</div>
+  </div>
+</div>
+
+<div class="summary" style="grid-template-columns:repeat(3,1fr)">
+  <div class="scard" style="border-left:3px solid #ef4444">
+    <div class="slbl">Critical</div>
+    <div class="sval" style="color:#ef4444">${risk?.criticals||0}</div>
+  </div>
+  <div class="scard" style="border-left:3px solid #f59e0b">
+    <div class="slbl">High</div>
+    <div class="sval" style="color:#f59e0b">${risk?.highs||0}</div>
+  </div>
+  <div class="scard" style="border-left:3px solid #60a5fa">
+    <div class="slbl">Medium</div>
+    <div class="sval" style="color:#60a5fa">${risk?.mediums||0}</div>
+  </div>
+</div>
+
+${criticals.length ? `
+<h2>🔴 Critical Findings (${criticals.length})</h2>
+${criticals.map(f => `
+<div class="finding CRITICAL">
+  <div class="fname">
+    <span class="fbadge CRITICAL">CRITICAL</span>${f.name}
+    ${f.cwe ? `<span style="font-size:10px;color:#888;margin-left:6px">${f.cwe}</span>`:''}
+  </div>
+  <div class="ffile">📁 ${f.file} · Line ${f.line}</div>
+  ${f.lineText ? `<div class="fcode">${f.lineText.replace(/</g,'&lt;')}</div>`:''}
+  <div class="fdesc">${f.description||''}</div>
+  <div class="ffix">✅ Fix: ${f.remediation||''}</div>
+</div>`).join('')}` : ''}
+
+${highs.length ? `
+<h2>🟡 High Findings (${highs.length})</h2>
+${highs.map(f => `
+<div class="finding HIGH">
+  <div class="fname">
+    <span class="fbadge HIGH">HIGH</span>${f.name}
+    ${f.cwe ? `<span style="font-size:10px;color:#888;margin-left:6px">${f.cwe}</span>`:''}
+  </div>
+  <div class="ffile">📁 ${f.file} · Line ${f.line}</div>
+  ${f.lineText ? `<div class="fcode">${f.lineText.replace(/</g,'&lt;')}</div>`:''}
+  <div class="fdesc">${f.description||''}</div>
+  <div class="ffix">✅ Fix: ${f.remediation||''}</div>
+</div>`).join('')}` : ''}
+
+${mediums.length ? `
+<h2>🔵 Medium Findings (${mediums.length})</h2>
+${mediums.map(f => `
+<div class="finding MEDIUM">
+  <div class="fname">
+    <span class="fbadge MEDIUM">MEDIUM</span>${f.name}
+    ${f.cwe ? `<span style="font-size:10px;color:#888;margin-left:6px">${f.cwe}</span>`:''}
+  </div>
+  <div class="ffile">📁 ${f.file} · Line ${f.line}</div>
+  ${f.lineText ? `<div class="fcode">${f.lineText.replace(/</g,'&lt;')}</div>`:''}
+  <div class="fdesc">${f.description||''}</div>
+</div>`).join('')}` : ''}
+
+${paths?.length ? `
+<h2>⚔️ Attack Paths</h2>
+${paths.filter(p=>p.severity!=='INFO').map(p=>`
+<div class="path-item">
+  <div class="path-title">${p.title}</div>
+  <div style="font-size:10px;color:#888;margin-bottom:6px">${p.cwe} · MITRE ${p.mitre||'N/A'} · 📁 ${p.file}</div>
+  <div class="steps">
+    ${p.steps.map(s=>`<div class="step">${s}</div>`).join('')}
+  </div>
+</div>`).join('')}` : ''}
+
+<div class="footer">
+  <span>Generated by CodeFortress CI — codefortress.vercel.app</span>
+  <span>${new Date().toLocaleString()}</span>
+</div>
+
+</body></html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(() => win.print(), 800);
+}
+
+// ════════════════════════════════════════
+// JSON EXPORT
+// ════════════════════════════════════════
+function exportJSON() {
+  if (!scanData) return showToast('err', 'No scan data to export');
+  const report = {
+    generatedAt:   new Date().toISOString(),
+    tool:          'CodeFortress CI v1.0',
+    repo:          scanData.repo?.fullName,
+    riskScore:     scanData.risk?.score,
+    grade:         scanData.risk?.grade,
+    verdict:       scanData.risk?.label,
+    criticals:     scanData.risk?.criticals,
+    highs:         scanData.risk?.highs,
+    mediums:       scanData.risk?.mediums,
+    totalFindings: scanData.findings?.length,
+    findings:      scanData.findings,
+    attackPaths:   scanData.attackPaths,
+  };
+  const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = (scanData.repo?.name || 'codefortress') + '-security-report.json';
+  a.click();
+  showToast('ok', 'JSON report exported!');
+}
 </script>
 </body>
 </html>

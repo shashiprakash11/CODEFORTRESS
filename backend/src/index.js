@@ -8,6 +8,9 @@ const rateLimit    = require('express-rate-limit');
 const scanRoutes   = require('./routes/scan');
 const fixRoutes    = require('./routes/fix');
 const githubRoutes = require('./routes/github');
+const badgeRoutes  = require('./routes/badge');
+// 
+app.use('/api/badge', badgeRoutes);
 
 const app  = express();
 const PORT = process.env.PORT || 4000;

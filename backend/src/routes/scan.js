@@ -56,9 +56,10 @@ router.post('/', async (req, res) => {
     // 5. Attack paths
     const paths = attackPaths(allFindings, repo);
 
-    // 6. Cluster entropy
-    const clusterEntropy = parseFloat(
-      (20 + Math.min(58, risk.score * 0.75) + (repo.charCodeAt(0) % 5) * 0.1).toFixed(3)
+   // 6. Real cluster entropy — average Shannon entropy across all scanned files
+    const clusterEntropy = fileEntropies.length
+      ? parseFloat((fileEntropies.reduce((a, b) => a + b, 0) / fileEntropies.length).toFixed(3))
+      : 0;
     );
 
     return res.json({

@@ -79,7 +79,6 @@ router.post('/', async (req, res) => {
     const clusterEntropy = fileEntropies.length
       ? parseFloat((fileEntropies.reduce((a, b) => a + b, 0) / fileEntropies.length).toFixed(3))
       : 0;
-    );
 
     return res.json({
       repo: {

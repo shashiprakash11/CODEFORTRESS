@@ -27,6 +27,16 @@ router.post('/', async (req, res) => {
       hint: 'Ensure repo is public or provide a GitHub token.'
     });
 
+    // Priority files 
+    const PRIORITY = ['env','config','database','db.','auth','secret',
+                      'key','password','token','credential','login',
+                      'admin','payment','stripe','aws','setting'];
+    files.sort((a, b) => {
+      const aP = PRIORITY.some(p => a.path.toLowerCase().includes(p)) ? 1 : 0;
+      const bP = PRIORITY.some(p => b.path.toLowerCase().includes(p)) ? 1 : 0;
+      return bP - aP;
+    });
+
     // 3. Scan files in batches of 10
     const allFindings  = [];
     const scanned      = [];
@@ -65,7 +75,7 @@ router.post('/', async (req, res) => {
 // 6. Attack paths
     const paths = attackPaths(deduped, repo);
 
-   // 6. Real cluster entropy — average Shannon entropy across all scanned files
+   // 7. Real cluster entropy — average Shannon entropy across all scanned files
     const clusterEntropy = fileEntropies.length
       ? parseFloat((fileEntropies.reduce((a, b) => a + b, 0) / fileEntropies.length).toFixed(3))
       : 0;

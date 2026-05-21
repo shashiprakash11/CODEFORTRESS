@@ -61,8 +61,9 @@ router.post('/', async (req, res) => {
 
     // 5. Risk score
     const risk = riskScore(deduped);
-    // 5. Attack paths
-    const paths = attackPaths(allFindings, repo);
+    
+// 6. Attack paths
+    const paths = attackPaths(deduped, repo);
 
    // 6. Real cluster entropy — average Shannon entropy across all scanned files
     const clusterEntropy = fileEntropies.length

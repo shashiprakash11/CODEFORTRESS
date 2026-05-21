@@ -2,8 +2,18 @@
 const axios = require('axios');
 
 const SCAN_EXTS = new Set([
-  'js','ts','jsx','tsx','py','java','go','rb','php','cs','cpp','c','h',
-  'yml','yaml','env','json','config','toml','sh','bash','tf','vue','svelte'
+  'js','ts','jsx','tsx','mjs','cjs',
+  'py','java','go','rb','php','cs','cpp','c','h',
+  'yml','yaml','env','json','config','toml','sh','bash','tf',
+  'vue','svelte','kt','swift','rs','xml','properties','ini','cfg'
+]);
+
+// Filename-based scan 
+const SCAN_FILENAMES = new Set([
+  '.env','.env.local','.env.production','.env.development',
+  '.env.example','.env.sample','Dockerfile','docker-compose.yml',
+  '.htaccess','web.config','settings.py','config.py',
+  'application.properties','application.yml'
 ]);
 const SKIP_DIRS = new Set([
   'node_modules','.git','dist','build','vendor','venv','.venv','env',
@@ -46,17 +56,22 @@ async function getFiles(owner, repo, token, path, depth) {
     );
     if (!Array.isArray(data)) return files;
 
-    await Promise.allSettled(data.map(async item => {
-      if (item.type === 'file') {
-        const ext = item.name.split('.').pop()?.toLowerCase() || '';
-        if (SCAN_EXTS.has(ext) && item.size > 0 && item.size < 200000) {
-          files.push({ path: item.path, url: item.download_url, size: item.size });
+   const results = await Promise.allSettled(data.map(async item => {
+   if (item.type === 'file') {
+        const ext      = item.name.split('.').pop()?.toLowerCase() || '';
+        const fileName = item.name.toLowerCase();
+        const scannable = SCAN_EXTS.has(ext) || SCAN_FILENAMES.has(fileName) || fileName.startsWith('.env');
+        if (scannable && item.size > 0 && item.size < 200000) {
+          return [{ path: item.path, url: item.download_url, size: item.size }];
         }
       } else if (item.type === 'dir' && !SKIP_DIRS.has(item.name)) {
-        const sub = await getFiles(owner, repo, token, item.path, depth + 1);
-        files.push(...sub);
+        return await getFiles(owner, repo, token, item.path, depth + 1);
       }
+      return [];
     }));
+    results.forEach(r => {
+      if (r.status === 'fulfilled' && r.value) files.push(...r.value);
+    });
   } catch (_) {}
   return files;
 }

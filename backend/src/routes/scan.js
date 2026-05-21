@@ -50,9 +50,17 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // 4. Risk score
-    const risk = riskScore(allFindings);
+// 4. Deduplicate findings — same rule same line same file = one finding
+    const seen    = new Set();
+    const deduped = allFindings.filter(f => {
+      const key = f.name + ':' + f.file + ':' + f.line;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
+    // 5. Risk score
+    const risk = riskScore(deduped);
     // 5. Attack paths
     const paths = attackPaths(allFindings, repo);
 

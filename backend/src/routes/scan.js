@@ -2,7 +2,7 @@
 const express  = require('express');
 const router   = express.Router();
 const { parseUrl, getMeta, getFiles, fetchContent } = require('../services/githubService');
-const { scanSecrets }             = require('../services/secretScanner');
+const { scanSecrets, fileEntropyScore } = require('../services/secretScanner');
 const { scanSAST, riskScore, attackPaths } = require('../services/sastScanner');
 
 // POST /api/scan
@@ -28,8 +28,9 @@ router.post('/', async (req, res) => {
     });
 
     // 3. Scan files in batches of 10
-    const allFindings = [];
-    const scanned     = [];
+    const allFindings  = [];
+    const scanned      = [];
+    const fileEntropies = [];
     const BATCH       = 10;
     const cap         = Math.min(files.length, 80);
 
@@ -40,7 +41,8 @@ router.post('/', async (req, res) => {
           const content = await fetchContent(f.url, token);
           if (!content) return [];
           scanned.push(f.path);
-          return [...scanSecrets(content, f.path), ...scanSAST(content, f.path)];
+              fileEntropies.push(fileEntropyScore(content));
+              return [...scanSecrets(content, f.path), ...scanSAST(content, f.path)];
         })
       );
       results.forEach(r => {

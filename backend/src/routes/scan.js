@@ -101,15 +101,15 @@ router.get('/stream', (req, res) => {
   const stages = [
     { index: 0, label: 'Connecting to GitHub API...',              progress: 8   },
     { index: 1, label: 'Fetching repository file tree...',          progress: 18  },
-    { index: 2, label: 'Initializing ML inference workers...',      progress: 28  },
-    { index: 3, label: '[SECRET_ML] Running XGBoost inference...',  progress: 38  },
-    { index: 4, label: '[SAST_RISK] Running ensemble analysis...',  progress: 50  },
-    { index: 5, label: '[ATTACK_GNN] Traversing GraphSAGE...',      progress: 62  },
-    { index: 6, label: '[DAST_SIM] Simulating runtime vectors...',  progress: 72  },
-    { index: 7, label: '[SEC_MEMORY] Querying memory graph...',     progress: 82  },
-    { index: 8, label: '[VERDICT_AI] Computing Bayesian verdict...',progress: 90  },
-    { index: 9, label: '[XAI_LAYER] Calculating SHAP values...',    progress: 96  },
-    { index:10, label: '[SELF_HEAL] Synthesizing patches...',       progress: 99  },
+  { index: 2, label: 'Analyzing repository file structure...',         progress: 28  },
+{ index: 3, label: '[SECRET_SCAN] Running entropy + pattern analysis...', progress: 38  },
+{ index: 4, label: '[SAST_SCAN] Checking OWASP Top 10 rules...',    progress: 50  },
+{ index: 5, label: '[ATTACK_MAP] Mapping CWE/MITRE attack paths...', progress: 62  },
+{ index: 6, label: '[RISK_ENGINE] Computing weighted severity score...', progress: 72  },
+{ index: 7, label: '[PATTERN_DB] Cross-referencing CVE database...', progress: 82  },
+{ index: 8, label: '[VERDICT] Synthesizing final risk verdict...',   progress: 90  },
+{ index: 9, label: '[AI_ENGINE] Preparing Groq fix engine...',       progress: 96  },
+{ index:10, label: '[REPORT] Generating findings report...',         progress: 99  },
     { index:11, label: 'Consolidating results...',                   progress: 100, done: true }
   ];
 

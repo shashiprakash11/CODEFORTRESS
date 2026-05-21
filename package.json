@@ -9,6 +9,6 @@
     "install:all": "cd backend && npm install",
     "start": "cd backend && npm start"
   },
-  "author": "Your Name",
+  "author": "SHASHI PRAKASH ",
   "license": "MIT"
 }

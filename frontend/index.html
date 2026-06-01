@@ -1529,12 +1529,10 @@ function finishScan(data, isRealScan, ghResult){
   tb.insertAdjacentHTML('afterbegin',`<tr><td>${new Date().toLocaleString()}</td><td style="color:var(--gold)">${repoName}</td><td>${data.scan.secretsFound+data.scan.sastFound}</td><td>${data.risk.score}/100</td><td><span class="${vtcls}">${data.risk.label}</span></td></tr>`)
 }
 
-// ════════════════════════════════════════
 // FINDINGS LIST
 // ════════════════════════════════════════
 function sevClass(s){return{CRITICAL:'sc',HIGH:'sh',MEDIUM:'sm',LOW:'sl',INFO:'sl'}[s]||'sl'}
 function dotClass(s){return{CRITICAL:'fdot fcrit',HIGH:'fdot fhigh',MEDIUM:'fdot fmed',LOW:'fdot flow',INFO:'fdot flow'}[s]||'fdot flow'}
-
 function buildFindingsList(findings){
   const list=document.getElementById('findList')
   if(!list) return
@@ -1542,7 +1540,7 @@ function buildFindingsList(findings){
   findings.forEach(f=>{
     const item=document.createElement('div')
     item.className='fitem'
-   const ghLink = getGitHubLink(f)
+    const ghLink = getGitHubLink(f)
     const sevCls = sevClass(f.severity)
     const dotCls = dotClass(f.severity)
     const ghHtml = ghLink ? '<a class="flink" href="'+ghLink+'" target="_blank" rel="noopener">↗ GitHub</a>' : ''
@@ -1571,17 +1569,6 @@ function buildFindingsList(findings){
     fixDiv.style.display='none'
     item.appendChild(fixDiv)
     list.appendChild(item)
-    window._findings=window._findings||{}
-    window._findings[f.id]=f
-  })
-}
-    // Fix result placeholder
-    const fixDiv=document.createElement('div')
-    fixDiv.id=`fixr-${f.id}`
-    fixDiv.style.display='none'
-    item.appendChild(fixDiv)
-    list.appendChild(item)
-    // Store finding for fix
     window._findings=window._findings||{}
     window._findings[f.id]=f
   })

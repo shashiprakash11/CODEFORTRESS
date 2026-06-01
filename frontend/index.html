@@ -1549,6 +1549,12 @@ function buildFindingsList(findings){
     const owasp  = f.owasp ? '<span style="font-size:9px;color:var(--txt3);font-family:var(--fm)">'+f.owasp+'</span>' : ''
     const code   = f.lineText ? '<div class="fcode">'+escH(f.lineText)+'</div>' : ''
 
+  const ghLink = getGitHubLink(f)
+    const sevCls = sevClass(f.severity)
+    const dotCls = dotClass(f.severity)
+    const ghHtml = ghLink ? '<a class="flink" href="'+ghLink+'" target="_blank" rel="noopener">↗ GitHub</a>' : ''
+    const owasp  = f.owasp ? '<span style="font-size:9px;color:var(--txt3);font-family:var(--fm)">'+f.owasp+'</span>' : ''
+    const code   = f.lineText ? '<div class="fcode">'+escH(f.lineText)+'</div>' : ''
     item.innerHTML =
       '<div class="'+dotCls+'"></div>'+
       '<div style="flex:1;min-width:0">'+
@@ -1567,7 +1573,6 @@ function buildFindingsList(findings){
         '</div>'+
       '</div>'+
       '<button class="fixbtn" id="fix-'+f.id+'" onclick="requestFix(\''+f.id+'\')">⚡ Fix</button>'
-
     const fixDiv=document.createElement('div')
     fixDiv.id='fixr-'+f.id
     fixDiv.style.display='none'

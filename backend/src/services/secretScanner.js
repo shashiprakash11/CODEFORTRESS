@@ -245,4 +245,11 @@ function scanSecrets(content, filePath) {
   return findings;
 }
 
-module.exports = { scanSecrets, entropy, fileEntropyScore, isScannableFile };
+function fileEntropyScore(content) {
+  const tokens = content.match(/["'][A-Za-z0-9+/=_\-]{16,}["']/g) || [];
+  if (!tokens.length) return 0;
+  const total = tokens.reduce((sum, t) => sum + entropy(t.replace(/["']/g, '')), 0);
+  return Math.round((total / tokens.length) * 100) / 100;
+}
+
+module.exports = { scanSecrets, entropy, fileEntropyScore };

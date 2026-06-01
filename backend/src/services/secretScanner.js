@@ -1,6 +1,6 @@
 'use strict';
 
-// ─── File type filtering ──────────────────────────────────────────────────────
+// ─── File type filtering ─────────────────────────────────────────────────────
 const SCANNABLE_EXTS = [
   '.js', '.ts', '.jsx', '.tsx', '.mjs', '.cjs',
   '.py', '.rb', '.php', '.java', '.go', '.cs', '.cpp', '.c',

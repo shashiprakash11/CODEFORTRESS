@@ -1542,14 +1542,7 @@ function buildFindingsList(findings){
   findings.forEach(f=>{
     const item=document.createElement('div')
     item.className='fitem'
-    const ghLink = getGitHubLink(f)
-    const sevCls = sevClass(f.severity)
-    const dotCls = dotClass(f.severity)
-    const ghHtml = ghLink ? '<a class="flink" href="'+ghLink+'" target="_blank" rel="noopener">↗ GitHub</a>' : ''
-    const owasp  = f.owasp ? '<span style="font-size:9px;color:var(--txt3);font-family:var(--fm)">'+f.owasp+'</span>' : ''
-    const code   = f.lineText ? '<div class="fcode">'+escH(f.lineText)+'</div>' : ''
-
-  const ghLink = getGitHubLink(f)
+   const ghLink = getGitHubLink(f)
     const sevCls = sevClass(f.severity)
     const dotCls = dotClass(f.severity)
     const ghHtml = ghLink ? '<a class="flink" href="'+ghLink+'" target="_blank" rel="noopener">↗ GitHub</a>' : ''

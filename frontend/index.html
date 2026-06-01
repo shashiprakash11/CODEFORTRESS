@@ -1541,11 +1541,34 @@ function buildFindingsList(findings){
   findings.forEach(f=>{
     const item=document.createElement('div')
     item.className='fitem'
+    const ghLink = getGitHubLink(f)
     item.innerHTML=`
-'<div style="display:flex;align-items:center;gap:6px;margin-top:4px">' +
-  (getGitHubLink(f) ? '<a class="flink" href="' + getGitHubLink(f) + '" target="_blank">↗ View on GitHub</a>' : '') +
-  '<button class="fcopy" onclick="copyFinding(\'' + f.id + '\')">Copy</button>' +
-'</div>'
+      <div class="${dotClass(f.severity)}"></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap">
+          <span class="sbdg ${sevClass(f.severity)}">${f.severity}</span>
+          <span class="fname">${f.name}</span>
+          <span style="font-size:9px;color:var(--txt3);font-family:var(--fm)">${f.cwe||''}</span>
+          ${f.owasp?`<span style="font-size:9px;color:var(--txt3);font-family:var(--fm)">${f.owasp}</span>`:''}
+        </div>
+        <div class="ffile">${f.file} · Line ${f.line}</div>
+        ${f.lineText?`<div class="fcode">${escH(f.lineText)}</div>`:''}
+        <div style="font-size:10px;color:var(--txt3);font-family:var(--fm);margin-top:4px;line-height:1.5">${f.description||''}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
+          ${ghLink ? `<a class="flink" href="${ghLink}" target="_blank" rel="noopener">↗ GitHub</a>` : ''}
+          <button class="fcopy" onclick="copyFinding('${f.id}')">Copy</button>
+        </div>
+      </div>
+      <button class="fixbtn" id="fix-${f.id}" onclick="requestFix('${f.id}')">⚡ Fix</button>`
+    const fixDiv=document.createElement('div')
+    fixDiv.id=`fixr-${f.id}`
+    fixDiv.style.display='none'
+    item.appendChild(fixDiv)
+    list.appendChild(item)
+    window._findings=window._findings||{}
+    window._findings[f.id]=f
+  })
+}
       <div class="${dotClass(f.severity)}"></div>
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap">

@@ -24,7 +24,7 @@ function isScannableFile(filePath) {
   return SCANNABLE_EXTS.some(e => lower.endsWith(e));
 }
 
-// ─── Shannon Entropy ──────────────────────────────────────────────────────────
+// ─── Shannon Entropy ─────────────────────────────────────────────────────────
 function entropy(str) {
   if (!str || str.length === 0) return 0;
   const freq = {};

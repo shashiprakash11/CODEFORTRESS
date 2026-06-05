@@ -2482,19 +2482,30 @@ function saveToHistory(repoUrl, result) {
     const existing = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
     const entry = {
       repoUrl,
-      fullName:  result.repo?.fullName || repoUrl,
-      grade:     result.risk?.grade || '?',
-      score:     result.risk?.score || 0,
+      fullName:  result.repo?.fullName  || repoUrl,
+      grade:     result.risk?.grade     || '?',
+      score:     result.risk?.score     || 0,
+      label:     result.risk?.label     || '—',
       findings:  result.findings?.length || 0,
+      criticals: result.risk?.criticals  || 0,
+      highs:     result.risk?.highs      || 0,
+      language:  result.repo?.language   || '—',
       scannedAt: new Date().toISOString(),
-      result,
+      // result object nahi — sirf metadata save karo
     };
-    // Remove duplicate if same repo
     const filtered = existing.filter(e => e.repoUrl !== repoUrl);
     const updated  = [entry, ...filtered].slice(0, MAX_HISTORY);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+
+    // localStorage mein save karo
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+    } catch(storageErr) {
+      // Storage full — purani entry hatao aur retry karo
+      const trimmed = updated.slice(0, 3);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
+    }
     renderHistory();
-  } catch(e) {}
+  } catch(e) { console.error('[history] save failed:', e) }
 }
 
 function renderHistory() {
@@ -2503,22 +2514,39 @@ function renderHistory() {
   try {
     const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
     if (!history.length) {
-      el.innerHTML = '<div style="font-size:10px;color:var(--txt3);font-family:var(--fm)">No scan history yet.</div>';
+      el.innerHTML = '<div style="font-size:10px;color:var(--txt3);font-family:var(--fm);padding:8px 0">No scan history yet.</div>';
       return;
     }
-    const GRADE_COLOR = { A:'var(--green)', B:'var(--green)', C:'var(--amber)', D:'var(--amber)', F:'var(--red)' };
+    const GRADE_COLOR = {
+      A:'var(--green)', B:'var(--green)',
+      C:'var(--amber)', D:'var(--amber)', F:'var(--red)'
+    };
     el.innerHTML = history.map((h, i) => `
-      <div class="hist-item" onclick="loadFromHistory(${i})">
-        <div>
-          <div class="hist-repo">${h.fullName}</div>
-          <div class="hist-meta">${h.findings} findings · ${new Date(h.scannedAt).toLocaleDateString()}</div>
+      <div class="hist-item" onclick="loadFromHistory(${i})" style="
+        display:flex;align-items:center;gap:10px;padding:8px 12px;
+        background:var(--bg3);border:1px solid var(--bdr);
+        border-radius:var(--rs);cursor:pointer;transition:border-color .15s;
+        margin-bottom:6px
+      " onmouseover="this.style.borderColor='var(--gold)'"
+         onmouseout="this.style.borderColor='var(--bdr)'">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:10px;font-family:var(--fm);color:var(--txt);
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            ${h.fullName}
+          </div>
+          <div style="font-size:9px;color:var(--txt3);font-family:var(--fm);margin-top:2px">
+            ${h.findings} findings
+            ${h.criticals ? '· <span style="color:var(--red)">' + h.criticals + ' critical</span>' : ''}
+            · ${new Date(h.scannedAt).toLocaleDateString()}
+          </div>
         </div>
-        <div class="hist-grade" style="color:${GRADE_COLOR[h.grade]||'var(--txt2)'}">
+        <div style="font-size:15px;font-weight:700;font-family:var(--fm);
+          color:${GRADE_COLOR[h.grade]||'var(--txt2)'};flex-shrink:0">
           ${h.grade}
         </div>
       </div>
     `).join('');
-  } catch(e) {}
+  } catch(e) { console.error('[history] render failed:', e) }
 }
 
 function loadFromHistory(idx) {

@@ -1504,16 +1504,26 @@ function finishScan(data, isRealScan, ghResult){
 
   // Show viz row
   document.getElementById('vizRow').style.display = 'grid'
-
-  // Draw charts after short delay
+//historysavings
+scanData = data
   setTimeout(function(){
     drawDonut(data.findings)
     drawGauge(data.risk.score)
+    drawChart()
   }, 400)
-
   buildFindingsList(data.findings)
-
-  // Toast notification
+  // History mein save karo
+  try {
+    const repoInput = document.getElementById('repoUrl')?.value?.trim() || ''
+    saveToHistory(repoInput, {
+      repo:     data.repo,
+      risk:     data.risk,
+      findings: data.findings,
+      scan:     data.scan
+    })
+  } catch(e) {}
+  // History page render 
+  renderHistory()
   showToast(data.risk.level==='FAIL'?'warn':'ok', 'Scan complete — '+total+' findings · Risk: '+data.risk.score+'/100')
 
   // Defense chart

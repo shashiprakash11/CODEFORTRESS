@@ -1448,7 +1448,6 @@ function finishScan(data, isRealScan, ghResult){
   document.getElementById('nct').textContent='Neural Cluster: Complete'
   document.getElementById('execBtn').classList.add('fired')
   document.getElementById('reviewBtn').style.display='block'
-  animateEntropy(data.clusterEntropy||38.4)
   document.getElementById('auCnt').textContent=auditCount
   document.getElementById('auCntTxt').textContent=auditCount+' Records'
 
@@ -2238,7 +2237,6 @@ function doReset(){
   document.getElementById('memStatusDot').style.background = 'var(--txt3)'
   document.getElementById('memStatusTxt').textContent = 'No Scan Yet'
   document.getElementById('atkGrid').innerHTML='<div class="card card-p" style="grid-column:1/-1;text-align:center;padding:40px;color:var(--txt3)"><div style="font-size:28px;margin-bottom:12px;opacity:.35">🔒</div><div style="font-family:var(--fm);font-size:11px">Initialize a scan on the Intelligence Space to load real threat findings.</div></div>'
-  animateEntropy(17.781)
   goPage('intel')
 }
 

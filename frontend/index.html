@@ -1181,19 +1181,16 @@ function addLog(type,msg,target='logBody'){
 function clearLog(){document.getElementById('logBody').innerHTML=''}
 
 // ════════════════════════════════════════
-// BUILD HORIZONTAL ML STAGES
-// ════════════════════════════════════════
 const STAGE_NAMES = [
-  'Secret Prediction\n,
+  'Secret\nDetection',
   'SAST\nAnalysis',
-  'Attack Path\nGNN',
-  'DAST Runtime\nLikelihood',
-  'Security Memory\nGraph',
-  'Decision\nIntelligence',
-  'XAI Attribution\n(SHAP)',
-  'Patch\nSynthesis'
+  'Attack\nMapping',
+  'Risk\nScoring',
+  'CVE\nMatching',
+  'AI\nVerdict',
+  'Fix\nGeneration',
+  'Report\nSynthesis'
 ]
-
 function buildStreamIdle(){
   const wrap = document.getElementById('hStagesWrap')
   if(!wrap) return

@@ -1119,43 +1119,29 @@ let auditCount=0, chatMode='local', fixes={}
 
 // 8 Layer definitions (exact from original)
 const LAYERS=[
-  {id:1, label:'Secret\nPrediction\n(XGBoost)',   short:'SECRET_ML'},
-  {id:2, label:'Contextual\nSAST\n(Ensemble)',    short:'SAST_RISK'},
-  {id:3, label:'Attack Path\nGNN',                short:'ATTACK_GNN'},
-  {id:4, label:'DAST Runtime\nLikelihood',        short:'DAST_SIM'},
-  {id:5, label:'Security\nMemory\nGraph',         short:'SEC_MEMORY'},
-  {id:6, label:'Decision\nIntelligence',          short:'VERDICT_AI'},
-  {id:7, label:'XAI Attribution\n(SHAP)',         short:'XAI_LAYER'},
-  {id:8, label:'Patch\nSynthesis',                short:'SELF_HEAL'},
+  {id:1, label:'Secret\nDetection',      short:'SECRET_SCAN'},
+  {id:2, label:'SAST\nAnalysis',         short:'SAST_SCAN'},
+  {id:3, label:'Attack\nMapping',        short:'ATTACK_MAP'},
+  {id:4, label:'Risk\nScoring',          short:'RISK_ENGINE'},
+  {id:5, label:'CVE\nMatching',          short:'CVE_CHECK'},
+  {id:6, label:'AI\nVerdict',            short:'AI_VERDICT'},
+  {id:7, label:'Fix\nGeneration',        short:'FIX_GEN'},
+  {id:8, label:'Report\nSynthesis',      short:'REPORT_GEN'},
 ]
-
 const SCAN_STAGES=[
-  {prog:8,  lbl:'Activating 8-Layer ML Defense Pipeline...'},
-  {prog:16, lbl:'Initializing ML Architecture for target...'},
-  {prog:24, lbl:'[SECRET_ML] Spawning specialized inference worker...'},
-  {prog:32, lbl:'Calculating Shannon entropy and semantic vectors...'},
-  {prog:40, lbl:'[SAST_RISK] Running ensemble static analysis...'},
-  {prog:50, lbl:'[ATTACK_GNN] Traversing GraphSAGE trust relationships...'},
-  {prog:60, lbl:'[DAST_SIM] Simulating runtime attack vectors...'},
-  {prog:70, lbl:'[SEC_MEMORY] Querying cross-repo memory graph...'},
-  {prog:80, lbl:'[VERDICT_AI] Synthesizing weighted Bayesian verdict...'},
-  {prog:88, lbl:'[XAI_LAYER] Calculating SHAP attribution values...'},
-  {prog:95, lbl:'[SELF_HEAL] Synthesizing patch recommendations...'},
-  {prog:100,lbl:'Full ML Audit Complete. Consolidating results.'},
+  {prog:8,  lbl:'Connecting to GitHub repository...'},
+  {prog:16, lbl:'Fetching repository file structure...'},
+  {prog:24, lbl:'[SECRET_SCAN] Running entropy + pattern analysis on files...'},
+  {prog:32, lbl:'[SECRET_SCAN] Scanning for API keys, tokens, credentials...'},
+  {prog:40, lbl:'[SAST_SCAN] Checking 55 OWASP Top 10 vulnerability rules...'},
+  {prog:50, lbl:'[ATTACK_MAP] Mapping CWE/MITRE ATT&CK attack paths...'},
+  {prog:60, lbl:'[RISK_ENGINE] Computing weighted severity risk score...'},
+  {prog:70, lbl:'[CVE_CHECK] Cross-referencing known CVE patterns...'},
+  {prog:80, lbl:'[AI_VERDICT] Synthesizing final security verdict...'},
+  {prog:88, lbl:'[FIX_GEN] Preparing Groq AI fix recommendations...'},
+  {prog:95, lbl:'[REPORT_GEN] Generating findings report...'},
+  {prog:100,lbl:'Audit Complete. Consolidating results...'},
 ]
-
-// ════════════════════════════════════════
-// ENTROPY ANIMATION
-// ════════════════════════════════════════
-function animateEntropy(target){
-  entropyTarget=target
-  if(entropyTick) clearInterval(entropyTick)
-  entropyTick=setInterval(()=>{
-    entropy+=(entropyTarget-entropy)*0.07+(Math.random()-.5)*0.22
-    document.getElementById('eDisp').innerHTML=Math.abs(entropy).toFixed(3)+'<span class="ac">%</span>'
-  },100)
-}
-animateEntropy(17.781)
 
 // ════════════════════════════════════════
 // NAV
@@ -1198,8 +1184,8 @@ function clearLog(){document.getElementById('logBody').innerHTML=''}
 // BUILD HORIZONTAL ML STAGES
 // ════════════════════════════════════════
 const STAGE_NAMES = [
-  'Secret Prediction\n(XGBoost)',
-  'Contextual SAST\n(Ensemble)',
+  'Secret Prediction\n,
+  'SAST\nAnalysis',
   'Attack Path\nGNN',
   'DAST Runtime\nLikelihood',
   'Security Memory\nGraph',

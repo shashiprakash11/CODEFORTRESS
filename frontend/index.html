@@ -2298,7 +2298,7 @@ function drawDonut(findings){
   const med  = findings.filter(function(f){ return f.severity==='MEDIUM' }).length
   const low  = findings.filter(function(f){ return f.severity!=='CRITICAL'&&f.severity!=='HIGH'&&f.severity!=='MEDIUM' }).length
   const total = crit+high+med+low || 1
-  const colors = ['#F87171','#FBBF24','#60A5FA','#34D399']
+  const colors = ['#ef4444','#f59e0b','#facc15','#22c55e']
   const vals = [crit,high,med,low]
   document.getElementById('dCrit').textContent = crit
   document.getElementById('dHigh').textContent = high

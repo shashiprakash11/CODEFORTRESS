@@ -1586,28 +1586,24 @@ function buildFindingsList(findings){
 // ════════════════════════════════════════
 // GROQ API CONFIG (hardcoded)
 // ════════════════════════════════════════
-const GROQ_KEY = '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'
+const GROQ_KEY = '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'
 const GROQ_MODEL = 'llama-3.3-70b-versatile'
-// ── BACKEND CONFIG — Render URL yahan daalo
-const BACKEND_URL = 'https://codefortress-backend.onrender.com'
 
 async function callGroq(systemPrompt, userPrompt, maxTokens){
   try{
-    const r = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    const r = await fetch(BACKEND_URL + '/api/chat', {
       method:'POST',
-      headers:{'Authorization':'Bearer '+GROQ_KEY,'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model: GROQ_MODEL,
-        max_tokens: maxTokens||500,
-        messages:[
-          {role:'system', content: systemPrompt},
-          {role:'user',   content: userPrompt}
-        ]
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        message:  userPrompt,
+        context:  systemPrompt,
+        maxTokens: maxTokens||500
       }),
       signal: AbortSignal.timeout(25000)
     })
+    if(!r.ok) throw new Error('API error')
     const d = await r.json()
-    return d.choices?.[0]?.message?.content?.trim() || ''
+    return d.answer?.trim() || ''
   }catch(e){ return '' }
 }
 

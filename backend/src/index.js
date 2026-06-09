@@ -9,6 +9,7 @@ const scanRoutes   = require('./routes/scan');
 const fixRoutes    = require('./routes/fix');
 const githubRoutes = require('./routes/github');
 const badgeRoutes  = require('./routes/badge');
+const chatRoutes   = require('./routes/chat');
 
 const app  = express();
 const PORT = process.env.PORT || 4000;
@@ -44,6 +45,7 @@ app.use('/api/scan',   scanRoutes);
 app.use('/api/fix',    fixRoutes);
 app.use('/api/github', githubRoutes);
 app.use('/api/badge',  badgeRoutes);
+app.use('/api/chat',   chatRoutes);
 
 app.use((_, res) => res.status(404).json({ error: 'Route not found' }));
 app.use((err, _, res, __) => { console.error(err.stack); res.status(500).json({ error: err.message }); });

@@ -1339,11 +1339,12 @@ async function startScan(){
     document.getElementById('ghInfo').classList.add('show')
   }
 
-  const apiBase = BACKEND_URL  // Render.com backend URL
+  const BACKEND_URL = 'https://codefortress-backend.onrender.com'
+const GROQ_MODEL = 'llama-3.3-70b-versatile'
   let data = null
   let isRealScan = false
 
-  showToast('info', 'Initializing 8-Layer ML Pipeline...')
+  showToast('info', 'Initializing 8-Layer Pipeline...')
   addLog('info', 'Connecting to security scanner...')
   try {
     await fetch(apiBase + '/api/health', { signal: AbortSignal.timeout(10000) })
